@@ -83,10 +83,9 @@
         <div class="interaction" id="interaction">       
         </div>
         <div>
-          <label><input type="text" placeholder="let's chat!" name="text" id="query">联系上下文</label>
+          <input type="text" placeholder="let's chat!" name="text" id="query">
         </div>
         <div>
-          <input type="checkbox" name="联系上下文" id="option">
           <button type="submit" value="发送" id="submit">发送</button>
         </div>
     </div>
@@ -94,8 +93,18 @@
   <script>
     const btn=document.getElementById("submit");
     const interaction=document.getElementById("interaction");
-    const apikey="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";
-    var query;
+    var orgid="";
+    var APIkey="";
+    var query="";
+    //获取输入的orgid与APIkey
+    fetch('get-info')
+    .then(response=>response.json())
+    .then(data=>{
+      orgid=data.orgid;
+      APIkey=data.APIkey;
+    })
+    .catch(error=>console.log(error));
+    //发送请求
     btn.addEventListener("click",()=>{
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");
@@ -107,7 +116,7 @@
         //发送请求
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
-        xhr.setRequestHeader('Authorization', 'Bearer '+apikey);
+        xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
           if (xhr.status === 200) {
