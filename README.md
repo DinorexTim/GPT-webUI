@@ -1,4 +1,7 @@
 # GPT_Web
+- 一个可与GPT聊天的网页客户端
+- 前往https://platform.openai.com/account/org-settings 获取你的组织ID
+- 前往https://platform.openai.com/account/api-keys 获取你的APIkey
 # TODO：
 - [x] 实现单句问答
 - [ ] 实现联系上下文
