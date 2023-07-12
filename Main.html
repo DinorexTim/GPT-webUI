@@ -73,6 +73,16 @@
     .content{
       padding-left: 10px;
     }
+
+    .options {
+      display: flex;
+      align-items: center;
+    } 
+
+    .options h2 {
+      height: 25px; /* 设置一个固定高度 */
+    }
+
     </style>
 </head>
 <body>
@@ -90,12 +100,64 @@
         </div>
     </div>
   </div>
+  <div class="options">
+    <div class="models" style="display: inline-block; margin-left: 20px;">
+      <h2>Models</h2>
+      <form>
+        <input type="radio" id="model1" name="option" value="option1">
+        <label for="model1"><b>gpt-4 (PLUS only)</b></label><br>
+        <input type="radio" id="model2" name="option" value="option2" checked>
+        <label for="model2"><b>gpt-3.5-turbo</b></label><br>
+        <input type="radio" id="model3" name="option" value="option3">
+        <label for="model3"><b>text-davinci-003</b></label>
+      </form>
+    </div>
+    <div class="context-linkage" style="display: inline-block; margin-left: 20px;">
+      <h2>Context-linkage</h2>
+        <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2">
+        <label for="Context-linkage"><b>True</b></label><br>
+    </div>
+    <div class="temperature" style="display: inline-block; margin-left: 20px;" id="temperature">
+        <div id="value"><h2>Temperature:0</h2></div>
+        <input type="range" min="-20" max="20" id="temperature-range">
+    </div>
+  </div>
   <script>
     const btn=document.getElementById("submit");
     const interaction=document.getElementById("interaction");
+    const MODEL1=document.getElementById("model1");
+    const MODEL2=document.getElementById("model2");
+    const MODEL3=document.getElementById("model3");
+    const Contextlinkage=document.getElementById("Context-linkage")
+    const Temperature=document.getElementById("temperature");
     var orgid="";
     var APIkey="";
     var query="";
+    var model="";
+    var isContextLinkage=0;
+    var temperature=0;
+    //选择模型
+    MODEL1.addEventListener('input',()=>{
+      model="gpt-4";
+      console.log("model: "+model);
+    })
+    MODEL2.addEventListener('input',()=>{
+      model="gpt-3.5-turbo";
+      console.log("model: "+model);
+    })
+    MODEL3.addEventListener('input',()=>{
+      model="text-davinci-003";
+      console.log("model: "+model);
+    })
+    //选择是否联系上下文
+    Contextlinkage.addEventListener('input',()=>{
+      isContextLinkage=1-isContextLinkage;
+    })
+    //选择逆天程度
+    Temperature.addEventListener('input',()=>{
+      temperature=document.getElementById("temperature-range").value;
+      document.getElementById("value").innerHTML=`<h2>Temperature:${temperature/10}</h2>`;
+    })
     //获取输入的orgid与APIkey
     fetch('get-info')
     .then(response=>response.json())
@@ -115,7 +177,11 @@
         console.log("query: "+query);
         //发送请求
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+        if(model!='text-davinci-003'){
+          xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+        }else{
+          xhr.open('POST','https://api.openai.com/v1/completions')
+        }
         xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
@@ -130,24 +196,30 @@
             </div>
             `;
             interaction.scrollTop=interaction.scrollHeight;
-          } else {
+          } else {interaction.innerHTML=interaction.innerHTML+`
+            <div class="content">
+              <h3>PUA:</h3>
+              <p>请求失败，状态码：${xhr.status}</p>
+            </div>
+            `;
+            interaction.scrollTop=interaction.scrollHeight;
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
           }
         };
         const data = {
-          "model": "gpt-3.5-turbo",
+          "model": model,
           "messages": [
             {
               "role": "user",
               "content": query,
             }
           ],
-          "temperature": 0.7
+          "temperature": temperature/10,
         };
+        console.log(data);
         xhr.send(JSON.stringify(data));
       }
     })
-    
   </script>
 </body>
 </html>
