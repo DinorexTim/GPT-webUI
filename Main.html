@@ -78,11 +78,6 @@
       display: flex;
       align-items: center;
     } 
-
-    .options h2 {
-      height: 25px; /* 设置一个固定高度 */
-    }
-
     </style>
 </head>
 <body>
@@ -102,7 +97,7 @@
   </div>
   <div class="options">
     <div class="models" style="display: inline-block; margin-left: 20px;">
-      <h2>Models</h2>
+      <h2 style="height: 10px;">Models</h2>
       <form>
         <input type="radio" id="model1" name="option" value="option1">
         <label for="model1"><b>gpt-4 (PLUS only)</b></label><br>
@@ -113,12 +108,12 @@
       </form>
     </div>
     <div class="context-linkage" style="display: inline-block; margin-left: 20px;">
-      <h2>Context-linkage</h2>
+      <h2 style="height: 50px;">Context-linkage</h2>
         <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2">
         <label for="Context-linkage"><b>True</b></label><br>
     </div>
     <div class="temperature" style="display: inline-block; margin-left: 20px;" id="temperature">
-        <div id="value"><h2>Temperature:0</h2></div>
+        <div id="value"><h2 style="height: 50px;">Temperature:0</h2></div>
         <input type="range" min="-20" max="20" id="temperature-range">
     </div>
   </div>
@@ -156,7 +151,7 @@
     //选择逆天程度
     Temperature.addEventListener('input',()=>{
       temperature=document.getElementById("temperature-range").value;
-      document.getElementById("value").innerHTML=`<h2>Temperature:${temperature/10}</h2>`;
+      document.getElementById("value").innerHTML=`<h2 style="height: 50px;">Temperature:${temperature/10}</h2>`;
     })
     //获取输入的orgid与APIkey
     fetch('get-info')
