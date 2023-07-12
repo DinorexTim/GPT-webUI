@@ -4,7 +4,7 @@
 - 前往https://platform.openai.com/account/api-keys 获取你的APIkey
 # 功能：
 - [x] 实现单句问答
-- [ ] 实现联系上下文
+- [x] 实现联系上下文
 - [ ] 支持markdown渲染
 - [x] 用户输入apikey与组织id
 - [x] 选择模型
