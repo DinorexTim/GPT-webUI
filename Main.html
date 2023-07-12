@@ -131,7 +131,7 @@
     var query="";
     var model="gpt-3.5-turbo";
     var isContextLinkage=0;
-    var temperature=0.5;
+    var temperature=5;
     var historical_dialogue=[];
     //选择模型
     MODEL1.addEventListener('input',()=>{
@@ -149,6 +149,7 @@
     //选择是否联系上下文
     Contextlinkage.addEventListener('input',()=>{
       isContextLinkage=1-isContextLinkage;
+      console.log("Context Linkage:"+isContextLinkage);
     })
     //选择逆天程度
     Temperature.addEventListener('input',()=>{
@@ -173,7 +174,11 @@
         document.getElementById("query").value='';
         console.log("query: "+query);
         //添加用户历史对话
-        historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
+        if(historical_dialogue.length<=6){
+          historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
+        }else{
+          historical_dialogue.shift();
+        }
         console.log("历史对话:");
         console.dir(JSON.stringify(historical_dialogue));
         //发送请求
@@ -185,7 +190,11 @@
           if (xhr.status === 200) {
             let Response=JSON.parse(xhr.responseText);
             //添加GPT历史对话
-            historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+            if(historical_dialogue.length<=6){
+              historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+            }else{
+              historical_dialogue.shift();
+            }
             //增添回复
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content">
@@ -204,13 +213,23 @@
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
           }
         };
-        const data = {
-          "model": model,
-          "messages": historical_dialogue,
-          "temperature": temperature/10,
-        };
-        console.log(data);
-        xhr.send(JSON.stringify(data));
+        if(isContextLinkage){
+          const data = {
+            "model": model,
+            "messages": historical_dialogue,
+            "temperature": temperature/10,
+          };
+          console.log(data);
+          xhr.send(JSON.stringify(data));
+        }else{
+          const data = {
+            "model": model,
+            "messages": [{"role":"user","content":query}],
+            "temperature": temperature/10,
+          };
+          console.log(data);
+          xhr.send(JSON.stringify(data));
+        }
       }
     })
   </script>
