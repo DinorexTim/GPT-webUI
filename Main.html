@@ -86,6 +86,16 @@
       align-items: center;
       margin-bottom: 20px;
     } 
+    .audiototext{
+      height: 40px;
+      width: 40px;
+      cursor: pointer;
+    }
+    .texttoimage{
+      height: 40px;
+      width: 40px;
+      cursor: pointer;
+    }
     </style>
 </head>
 <body>
@@ -99,6 +109,8 @@
           <input type="text" placeholder="let's chat!" name="text" id="query">
         </div>
         <div>
+          <img src="./images/audiototext.png" alt="" id="audiototext" class="audiototext">
+          <img src="./images/texttoimage.png" alt="" id="texttoimage" class="audiototext">
           <button type="submit" value="发送" id="submit">发送</button>
         </div>
     </div>
@@ -126,7 +138,7 @@
     </div>
   </div>
   <div id="reply0"></div>
-  <script>
+  <script> 
     const btn=document.getElementById("submit");
     const interaction=document.getElementById("interaction");
     const MODEL1=document.getElementById("model1");
@@ -134,7 +146,9 @@
     const MODEL3=document.getElementById("model3");
     const Contextlinkage=document.getElementById("Context-linkage")
     const Temperature=document.getElementById("temperature");
-    
+    const audiototext=document.getElementById("audiototext");
+    const texttoimage=document.getElementById("texttoimage");
+
     var orgid="";
     var APIkey="";
     var query="";
@@ -180,6 +194,60 @@
       APIkey=data.APIkey;
     })
     .catch(error=>console.log(error));
+
+    audiototext.addEventListener('click',()=>{
+      alert("音频转文字");
+    });
+
+    texttoimage.addEventListener('click',()=>{
+      if(document.getElementById("query").value!=''){
+        console.log("已发送请求...");     
+        interaction.innerHTML=interaction.innerHTML+`<div class="content"><h3>You:</h3><p>${document.getElementById("query").value}</p></div>`;
+        interaction.scrollTop=interaction.scrollHeight;
+        query=document.getElementById("query").value;
+        document.getElementById("query").value='';
+        console.log("query: "+query);
+        if(replyID){
+          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+        }
+        //发送请求
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.openai.com/v1/images/generations');
+        xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            let Response=JSON.parse(xhr.responseText);
+            console.log(xhr.responseText);
+            //增添回复
+            interaction.innerHTML=interaction.innerHTML+`
+            <div class="content">
+              <h3>PUA:</h3>
+              <img src='${Response.data[0].url}' alt=''>
+              <img src='${Response.data[1].url}' alt=''>
+            </div>
+            `;
+            interaction.scrollTop=interaction.scrollHeight;
+          }else{
+            interaction.innerHTML=interaction.innerHTML+`
+            <div class="content">
+              <h3>PUA:</h3>
+              <p>❌请求失败，状态码：${xhr.status}</p>
+            </div>
+            `;
+            interaction.scrollTop=interaction.scrollHeight;
+            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+          }
+        };
+        const data = {
+          "prompt": query,
+          "n":2,
+          "size":"512x512",
+        };
+        console.log(data);
+        xhr.send(JSON.stringify(data));
+      }
+    });
 
     //处理对话
     function resendrequest(){      
@@ -341,7 +409,6 @@
         }
       }
     }
-    
     btn.addEventListener("click",sendrequest);
   </script>
 </body>

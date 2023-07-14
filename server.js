@@ -2,6 +2,7 @@ const express=require("express");
 var querystring=require("querystring");
 var bodyParser=require('body-parser');
 var http=require("http");
+const fs=require("fs");
 
 const { Configuration, OpenAIApi } = require('openai');
 const configuration = new Configuration({
@@ -53,5 +54,26 @@ app.post('/process-login',(req,res)=>{
 app.get('/get-info',(req,res)=>{
   res.json({"orgid":orgid,"APIkey":APIkey});
 })
-
+app.get('/images/audiototext.png' , (req , res)=>{
+  fs.readFile("./images/audiototext.png",(err,data)=>{
+    if(err){
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"image/png"
+    });
+    res.end(data);
+  });
+})
+app.get('/images/texttoimage.png' , (req , res)=>{
+  fs.readFile("./images/texttoimage.png",(err,data)=>{
+    if(err){
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"image/png"
+    });
+    res.end(data);
+  });
+})
 var server=app.listen(port,()=>{});
