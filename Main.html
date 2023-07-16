@@ -96,6 +96,12 @@
       width: 40px;
       cursor: pointer;
     }
+    .prompt{
+      height: 40px;
+      width: 40px;
+      cursor: pointer;
+      border-radius: 50%;
+    }
     </style>
 </head>
 <body>
@@ -111,6 +117,7 @@
         <div>
           <img src="./images/audiototext.png" alt="" id="audiototext" class="audiototext">
           <img src="./images/texttoimage.png" alt="" id="texttoimage" class="audiototext">
+          <img src="./images/prompt.png" alt="" id="prompt" class="prompt">
           <button type="submit" value="发送" id="submit">发送</button>
         </div>
     </div>
@@ -129,7 +136,7 @@
     </div>
     <div class="context-linkage" style="display: inline-block;margin: auto;">
       <h2 style="margin-top: 0px;">Context Linkage</h2>
-        <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2">
+        <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2" checked>
         <label for="Context-linkage"><b>True</b></label><br>
     </div>
     <div class="temperature" style="display: inline-block;margin-left: 20px; margin-right: 20px;" id="temperature">
@@ -146,6 +153,7 @@
     const MODEL3=document.getElementById("model3");
     const Contextlinkage=document.getElementById("Context-linkage")
     const Temperature=document.getElementById("temperature");
+    const prompt=document.getElementById("prompt");
     const audiototext=document.getElementById("audiototext");
     const texttoimage=document.getElementById("texttoimage");
 
@@ -153,7 +161,7 @@
     var APIkey="";
     var query="";
     var model="gpt-3.5-turbo";
-    var isContextLinkage=0;
+    var isContextLinkage=1;
     var temperature=5;
     var historical_dialogue=[];    
     var historical_reply=[];
@@ -195,10 +203,136 @@
     })
     .catch(error=>console.log(error));
 
-    audiototext.addEventListener('click',()=>{
-      alert("音频转文字");
+    //添加预设人格
+    prompt.addEventListener('click',()=>{
+      if(document.getElementById("query").value!=''){
+        console.log("已发送请求...");     
+        query=document.getElementById("query").value;
+        document.getElementById("query").value='';
+        console.log("query: "+query);
+        if(replyID!=0){
+          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+        }
+        //添加用户历史对话
+        historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
+        if(historical_dialogue.length>max_dialogue_record){
+          historical_dialogue.shift();
+        }
+        console.log("历史对话:");
+        console.log(JSON.stringify(historical_dialogue));
+        //发送请求
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+        xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.onload = function() {
+          if (xhr.status === 200) {
+            let Response=JSON.parse(xhr.responseText);
+            console.log(xhr.responseText);
+            interaction.innerHTML=interaction.innerHTML+`
+            <div class="content" id="replyprompt">
+              <h3>PUA:</h3>
+              <p>人格加载成功！</p>
+            </div>
+            `;
+            //添加GPT历史对话
+            historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+            if(historical_dialogue.length>max_dialogue_record){
+              historical_dialogue.shift();
+            }
+            console.log(historical_reply);
+          }else{
+            interaction.innerHTML=interaction.innerHTML+`
+            <div class="content" id=reply${replyID}>
+              <h3>PUA:</h3>
+              <p>❌请求失败，状态码：${xhr.status}</p>
+            </div>
+            `;
+            interaction.scrollTop=interaction.scrollHeight;
+            console.log(historical_reply);
+            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+          }
+        };
+        if(isContextLinkage){
+          const data = {
+            "model": model,
+            "messages": historical_dialogue,
+            "temperature": temperature/10,
+          };
+          console.log(data);
+          xhr.send(JSON.stringify(data));
+        }else{
+          const data = {
+            "model": model,
+            "messages": [{"role":"user","content":query}],
+            "temperature": temperature/10,
+          };
+          console.log(data);
+          xhr.send(JSON.stringify(data));
+        }
+      }
     });
-
+    audiototext.addEventListener('click',()=>{
+      query=document.getElementById("query").value;
+      document.getElementById("query").value='';
+      console.log("query: "+query);
+      console.log("选择音频文件...");
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept="audio/*"
+      // 当用户选择文件时触发
+      input.addEventListener('change', () => {
+        // 获取用户选择的文件
+        const file = input.files[0];
+        const reader=new FileReader();
+        if(replyID){
+          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+        }
+        reader.addEventListener('load',()=>{
+          //上传文件
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://api.openai.com/v1/audio/transcriptions');
+          xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
+          xhr.setRequestHeader('Content-Type', 'multipart/form-data');
+          xhr.onload = function() {
+            if (xhr.status === 200) {
+              let Response=JSON.parse(xhr.responseText);
+              console.log(xhr.responseText);
+              //增添回复
+              interaction.innerHTML=interaction.innerHTML+`
+              <div class="content">
+                <h3>PUA:</h3>
+                <p>${Response.text}</p>
+              </div>
+              `;
+              interaction.scrollTop=interaction.scrollHeight;
+            }else{
+              interaction.innerHTML=interaction.innerHTML+`
+              <div class="content">
+                <h3>PUA:</h3>
+                <p>❌请求失败，状态码：${xhr.status}</p>
+              </div>
+              `;
+              interaction.scrollTop=interaction.scrollHeight;
+              console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+            }
+          };
+          // 创建一个FormData对象，并将文件添加到其中
+          const formdata = new FormData();
+          formdata.append('file', file);
+          formdata.append('model', 'whisper-1');
+          formdata.append("prompt",query);
+          // console.log(formdata.get("file"));
+          // console.log(formdata.get("model"));
+          // 发送XHR请求，将FormData对象作为参数传递
+          xhr.send(formdata);
+        });
+        // 开始读取文件
+        reader.readAsBinaryString(file);
+      });
+      input.click();
+    });
+    //文字生成图片
     texttoimage.addEventListener('click',()=>{
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
@@ -224,7 +358,6 @@
             <div class="content">
               <h3>PUA:</h3>
               <img src='${Response.data[0].url}' alt=''>
-              <img src='${Response.data[1].url}' alt=''>
             </div>
             `;
             interaction.scrollTop=interaction.scrollHeight;
@@ -241,14 +374,13 @@
         };
         const data = {
           "prompt": query,
-          "n":2,
-          "size":"512x512",
+          "n":1,
+          "size":"256x256",
         };
         console.log(data);
         xhr.send(JSON.stringify(data));
       }
     });
-
     //处理对话
     function resendrequest(){      
       console.log("Regenerating...");

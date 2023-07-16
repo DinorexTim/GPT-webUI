@@ -76,4 +76,15 @@ app.get('/images/texttoimage.png' , (req , res)=>{
     res.end(data);
   });
 })
+app.get('/images/prompt.png' , (req , res)=>{
+  fs.readFile("./images/prompt.png",(err,data)=>{
+    if(err){
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"image/png"
+    });
+    res.end(data);
+  });
+})
 var server=app.listen(port,()=>{});
