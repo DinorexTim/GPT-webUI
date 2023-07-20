@@ -5,6 +5,7 @@
     <meta lang="en">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>ChatPUA👍🏻</title>
+    <script src="https://cdn.bootcss.com/marked/0.8.1/marked.min.js"></script>
     <style>
     body {
       font-family: Arial, sans-serif;
@@ -25,7 +26,7 @@
       border-radius: 4px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
-      width: 400px;
+      width: 550px;
     }
     .mainbox h2 {
       margin-top: 0;
@@ -65,17 +66,17 @@
     }
     .interaction{
       border: 2px solid black;
-      height: 300px;
+      height: 400px;
       overflow-y: scroll;
       margin-bottom: 8px;
       border-radius: 10px;
     }
 
     .interaction button{
-      height: 10%;
-      width: 30%;
+      height: 5%;
+      width: 20%;
       padding-bottom: 10px;
-      margin-right: 108px;
+      margin-right: 168px;
     }
     .content{
       padding-left: 10px;
@@ -85,6 +86,7 @@
       display: flex;
       align-items: center;
       margin-bottom: 20px;
+      padding: 10px;
     } 
     .audiototext{
       height: 40px;
@@ -123,7 +125,7 @@
     </div>
   </div>
   <div class="options">
-    <div class="models" style="display: inline-block; margin-left: 20px;margin-right: 20px;">
+    <div class="models" style="display: inline-block; margin-left: 20px;margin:auto">
       <h2 style="height: 10px;">Models</h2>
       <form>
         <input type="radio" id="model1" name="option" value="option1">
@@ -139,17 +141,17 @@
         <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2" checked>
         <label for="Context-linkage"><b>True</b></label><br>
     </div>
-    <div class="temperature" style="display: inline-block;margin-left: 20px; margin-right: 20px;" id="temperature">
+    <div class="temperature" style="display: inline-block;margin:auto" id="temperature">
         <div id="value"><h2 style="height: 45px;">Temperature:0.5</h2></div>
         <input type="range" min="0" max="9" id="temperature-range">
     </div>
   </div>
   <div class="options">
-    <div class="" style="display: inline-block; margin-left: 20px;margin-right: 20px;">
+    <div class="" style="display: inline-block; margin:auto">
       <div id="numofimages"><h2 style="height: 45px;">Num of images:1</h2></div>
       <input type="range" min="1" max="10" id="images-range" value="1">
     </div>
-    <div class="Image size" style="display: inline-block;margin-left: 20px; margin-right: 20px;" id="temperature">
+    <div class="Image size" style="display: inline-block;margin: auto;" id="Image size">
         <div id="value"><h2 style="height: 10px;">Image size</h2></div>
        <input type="radio" id="size1" name="option" value="option1" checked>
         <label for="size1"><b>256x256</b></label><br>
@@ -313,6 +315,7 @@
         }
       }
     });
+    //语音转文字
     audiototext.addEventListener('click',()=>{
       query=document.getElementById("query").value;
       document.getElementById("query").value='';
@@ -428,7 +431,7 @@
         xhr.send(JSON.stringify(data));
       }
     });
-    //处理对话
+    //重新生成回复
     function resendrequest(){      
       console.log("Regenerating...");
       historical_dialogue.pop();
@@ -454,10 +457,11 @@
             historical_dialogue.shift();
           }
           //增添回复
+          var htmltext=marked(Response.choices[0].message.content);
           interaction.innerHTML=interaction.innerHTML+`
           <div class="content" id="reply${replyID}">
             <h3>PUA:</h3>
-            <p>${Response.choices[0].message.content}</p>
+            ${htmltext}
             <div id="regenerate${replyID}">
               <button id="regeneratebtn${replyID}">Regenerate</button>
             </div>
@@ -504,6 +508,7 @@
           xhr.send(JSON.stringify(data));
         }
     }
+    //生成回复
     function sendrequest(){
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
@@ -537,10 +542,11 @@
               historical_dialogue.shift();
             }
             //增添回复
+            var htmltext=marked(Response.choices[0].message.content);
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id="reply${replyID}">
               <h3>PUA:</h3>
-              <p>${Response.choices[0].message.content}</p>
+              ${htmltext}
               <div id="regenerate${replyID}">
                 <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>

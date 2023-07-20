@@ -10,10 +10,11 @@
 - [x] 重新生成回复
 - [x] 文字生成图片
 - [x] 加载预设人格
-- [ ] 支持markdown渲染
+- [x] 支持markdown渲染
 - [ ] 重新编辑发送内容
 - [ ] ~~支持语音输入~~
-# 快速开始(nodejs)
+# 快速开始
+## NodeJS
 - 下载以下模块
 ```
 npm install express
