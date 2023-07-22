@@ -315,7 +315,7 @@
         }
       }
     });
-    //语音转文字
+    //语音转文字(bug)
     audiototext.addEventListener('click',()=>{
       query=document.getElementById("query").value;
       document.getElementById("query").value='';
@@ -594,7 +594,15 @@
         }
       }
     }
+    //使用回车发送内容生成回复
+    function sendrequestKey(){
+      if(event.code=='Enter'){
+        sendrequest();
+      }
+    }
     btn.addEventListener("click",sendrequest);
+    //回车发送内容
+    document.addEventListener("keydown",sendrequestKey);
   </script>
 </body>
 </html>
