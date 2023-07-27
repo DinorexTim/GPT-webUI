@@ -569,10 +569,15 @@
         document.getElementById("query").value='';
         console.log("query: "+query);
         if(replyID!=0){
+          var errortext="";
           try{
-            getElementById(`regenerate${replyID-1}`).innerHTML='';
+            document.getElementById(`regenerate${replyID-1}`).innerHTML='';
           }catch(error){
-            console.log(error);
+            errortext=error
+            console.log(errortext);
+          }
+          if(errortext==""){
+            document.getElementById(`regenerate${replyID-1}`).innerHTML='';
           }
         }
         //添加用户历史对话
