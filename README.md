@@ -17,11 +17,7 @@
 ## NodeJS
 - 下载以下模块
 ```
-npm install express
-npm install openai
-npm install chatgpt
-npm install querystring
-npm install body-parser
+npm install express querystring body-parser
 ```
 - 将源代码下载至本地
 ```
