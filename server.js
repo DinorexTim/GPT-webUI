@@ -4,23 +4,27 @@ var bodyParser=require('body-parser');
 var http=require("http");
 const fs=require("fs");
 
-const { Configuration, OpenAIApi } = require('openai');
-const configuration = new Configuration({
-  organization: 'org-arJ1x5TbRFipySTbj2c7oWOQ',
-  apiKey: process.env.OPENAI_API_KEY,
-});
-const openai = new OpenAIApi(configuration);
-openai.listEngines()
-  .then(response => {
-    console.log('Response:', response);
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
+// const { Configuration, OpenAIApi } = require('openai');
+// const configuration = new Configuration({
+//   organization: 'org-arJ1x5TbRFipySTbj2c7oWOQ',
+//   apiKey: process.env.OPENAI_API_KEY,
+// });
+// const openai = new OpenAIApi(configuration);
+// openai.listEngines()
+//   .then(response => {
+//     console.log('Response:', response);
+//   })
+//   .catch(error => {
+//     console.error('Error:', error);
+//   });
 
 var app=express();
 const ip="localhost";
 const port=1111;
+var body=[];
+var APIkey;
+var orgid;
+var audiodata=[];
 /*********************创建服务器**********************/
 http.createServer((request,response)=>{
     response.writeHead(200,{'Content-Type':'text/plain'});
@@ -35,9 +39,6 @@ app.get('/Main.html', (req,res)=>{
     res.sendFile(__dirname+"/"+"/Main.html");
     console.log("访问主界面");
 })
-var body=[];
-var APIkey;
-var orgid;
 app.post('/process-login',(req,res)=>{
     req.on("data", (chunk) => {
       body.push(chunk);
@@ -53,10 +54,16 @@ app.post('/process-login',(req,res)=>{
 });
 app.get('/get-info',(req,res)=>{
   res.json({"orgid":orgid,"APIkey":APIkey});
+  if(APIkey!=""){
+    console.log("获取APIkey成功！");
+  }else{
+    console.log("获取失败！")
+  }
 })
 app.get('/images/audiototext.png' , (req , res)=>{
   fs.readFile("./images/audiototext.png",(err,data)=>{
     if(err){
+      console.log("加载图片失败！");
       throw err;
     }
     res.writeHead(200,{
@@ -68,6 +75,7 @@ app.get('/images/audiototext.png' , (req , res)=>{
 app.get('/images/texttoimage.png' , (req , res)=>{
   fs.readFile("./images/texttoimage.png",(err,data)=>{
     if(err){
+      console.log("加载图片失败！");
       throw err;
     }
     res.writeHead(200,{
@@ -79,6 +87,7 @@ app.get('/images/texttoimage.png' , (req , res)=>{
 app.get('/images/prompt.png' , (req , res)=>{
   fs.readFile("./images/prompt.png",(err,data)=>{
     if(err){
+      console.log("加载图片失败！");
       throw err;
     }
     res.writeHead(200,{

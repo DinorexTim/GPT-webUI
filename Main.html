@@ -58,6 +58,7 @@
       width: 20%;
       height: 100%;
       float: right;
+      margin: 5px;
     }
 
     .mainbox button:hover{
@@ -76,12 +77,26 @@
       height: 5%;
       width: 20%;
       padding-bottom: 10px;
-      margin-right: 168px;
+      margin-bottom: 5px;
+      height: 100%;
+      float: right;
     }
     .content{
       padding-left: 10px;
     }
-
+    .ReplyContent{
+      border:1px solid black;
+      border-radius: 10px;
+      word-break: break-all;
+      padding-left: 5px;
+      padding-right: 5px;
+    }
+    /* .ReplyContent button{
+      width: 60px;
+      margin-right: 2px;
+      border-radius: 20px;
+      margin: 5px;
+    } */
     .options {
       display: flex;
       align-items: center;
@@ -186,12 +201,14 @@
     var temperature=5;
     var historical_dialogue=[];    
     var historical_reply=[];
+    var historical_tocopy=[];
     var replyID=0;
     var max_dialogue_record=10;
     var size="256x256";
     var numofimages=1;
+    var formaudio = new FormData();
 
-    //选择模型
+    //选择模型***********************************
     MODEL1.addEventListener('input',()=>{
       model="gpt-4";
       console.log("model: "+model);
@@ -205,7 +222,7 @@
       console.log("model: "+model);
     })
 
-    //选择图像大小
+    //选择图像大小***********************************
     SIZE1.addEventListener("click",()=>{
       size="256x256";
       console.log("image size:256x256");
@@ -219,25 +236,25 @@
       console.log("image size:1024x1024");
     });
 
-    //选择图像数量
+    //选择图像数量***********************************
     NUMofIMAGES.addEventListener("input",()=>{
       numofimages=NUMofIMAGES.value;
       document.getElementById("numofimages").innerHTML=`<h2 style="height: 45px;">Num of images:${numofimages}</h2></h2>`;
     });
 
-    //选择是否联系上下文
+    //选择是否联系上下文***********************************
     Contextlinkage.addEventListener('input',()=>{
       isContextLinkage=1-isContextLinkage;
       console.log("Context Linkage:"+isContextLinkage);
     })
 
-    //选择逆天程度
+    //选择逆天程度***********************************
     Temperature.addEventListener('input',()=>{
       temperature=document.getElementById("temperature-range").value;
       document.getElementById("value").innerHTML=`<h2 style="height: 50px;">Temperature:${temperature/10}</h2>`;
     })
 
-    //获取输入的orgid与APIkey
+    //获取输入的orgid与APIkey***********************************
     fetch('get-info')
     .then(response=>response.json())
     .then(data=>{
@@ -246,7 +263,7 @@
     })
     .catch(error=>console.log(error));
 
-    //添加预设人格
+    //添加预设人格***********************************
     prompt.addEventListener('click',()=>{
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
@@ -275,7 +292,9 @@
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id="replyprompt">
               <h3>PUA:</h3>
+              <div class="ReplyContent">
               <p>人格加载成功！</p>
+              </div>
             </div>
             `;
             //添加GPT历史对话
@@ -286,9 +305,11 @@
             console.log(historical_reply);
           }else{
             interaction.innerHTML=interaction.innerHTML+`
-            <div class="content" id=reply${replyID}>
+            <div class="content">
               <h3>PUA:</h3>
+              <div class="ReplyContent">
               <p>❌请求失败，状态码：${xhr.status}</p>
+              </div>
             </div>
             `;
             interaction.scrollTop=interaction.scrollHeight;
@@ -315,7 +336,7 @@
         }
       }
     });
-    //语音转文字(bug)
+    //语音转文字(bug)***********************************
     audiototext.addEventListener('click',()=>{
       query=document.getElementById("query").value;
       document.getElementById("query").value='';
@@ -341,12 +362,14 @@
           xhr.onload = function() {
             if (xhr.status === 200) {
               let Response=JSON.parse(xhr.responseText);
-              console.log(xhr.responseText);
+              console.log(Response);
               //增添回复
               interaction.innerHTML=interaction.innerHTML+`
               <div class="content">
                 <h3>PUA:</h3>
+                <div class="ReplyContent">
                 <p>${Response.text}</p>
+                </div>
               </div>
               `;
               interaction.scrollTop=interaction.scrollHeight;
@@ -354,33 +377,43 @@
               interaction.innerHTML=interaction.innerHTML+`
               <div class="content">
                 <h3>PUA:</h3>
+                <div class="ReplyContent">
                 <p>❌请求失败，状态码：${xhr.status}</p>
+                </div>
               </div>
               `;
               interaction.scrollTop=interaction.scrollHeight;
               console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
             }
           };
-          // 创建一个FormData对象，并将文件添加到其中
-          const formdata = new FormData();
-          formdata.append('file', file);
-          formdata.append('model', 'whisper-1');
-          formdata.append("prompt",query);
-          // console.log(formdata.get("file"));
-          // console.log(formdata.get("model"));
-          // 发送XHR请求，将FormData对象作为参数传递
-          xhr.send(formdata);
+          // 创建一个Formdata对象，并将文件添加到其中
+          formaudio.append("file", file);
+          formaudio.append("model", 'whisper-1');
+          formaudio.append("prompt",query);
+          //打印
+          console.log(file);
+          formaudio.forEach((value, key) => {
+            console.log(`${key}: ${value}`);
+          });
+          xhr.send(formaudio);
         });
         // 开始读取文件
         reader.readAsBinaryString(file);
       });
       input.click();
     });
-    //文字生成图片
+    //文字生成图片***********************************
     texttoimage.addEventListener('click',()=>{
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
-        interaction.innerHTML=interaction.innerHTML+`<div class="content"><h3>You:</h3><p>${document.getElementById("query").value}</p></div>`;
+        interaction.innerHTML=interaction.innerHTML+`
+        <div class="content">
+          <h3>You:</h3>
+          <div class="ReplyContent">
+          <p>${document.getElementById("query").value}</p>
+          </div>
+        </div>
+        `;
         interaction.scrollTop=interaction.scrollHeight;
         query=document.getElementById("query").value;
         document.getElementById("query").value='';
@@ -396,7 +429,7 @@
         xhr.onload = function() {
           if (xhr.status === 200) {
             let Response=JSON.parse(xhr.responseText);
-            console.log(xhr.responseText);
+            console.log(Response);
             //增添回复
             interaction.innerHTML=interaction.innerHTML+`
               <div class="content">
@@ -415,7 +448,9 @@
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content">
               <h3>PUA:</h3>
+              <div class="ReplyContent">
               <p>❌请求失败，状态码：${xhr.status}</p>
+              </div>
             </div>
             `;
             interaction.scrollTop=interaction.scrollHeight;
@@ -431,7 +466,7 @@
         xhr.send(JSON.stringify(data));
       }
     });
-    //重新生成回复
+    //重新生成回复***********************************
     function resendrequest(){      
       console.log("Regenerating...");
       historical_dialogue.pop();
@@ -450,7 +485,7 @@
       xhr.onload = function() {
         if (xhr.status === 200) {
           let Response=JSON.parse(xhr.responseText);
-          console.log(xhr.responseText);
+          console.log(Response);
           //添加GPT历史对话
           historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
           if(historical_dialogue.length>max_dialogue_record){
@@ -461,7 +496,10 @@
           interaction.innerHTML=interaction.innerHTML+`
           <div class="content" id="reply${replyID}">
             <h3>PUA:</h3>
+            <div class="ReplyContent" id="ReplyContent${replyID}">
             ${htmltext}
+            </div>
+            <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
             <div id="regenerate${replyID}">
               <button id="regeneratebtn${replyID}">Regenerate</button>
             </div>
@@ -470,13 +508,18 @@
           interaction.scrollTop=interaction.scrollHeight;
           historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
           historical_reply[replyID].addEventListener('click',resendrequest);
+          // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
+          // historical_tocopy[replyID].addEventListener('mouseover',showCopyButton);
+          // historical_tocopy[replyID].addEventListener('mouseout',hideCopyButton);
           replyID++;
           console.log(historical_reply);
         }else{
           interaction.innerHTML=interaction.innerHTML+`
           <div class="content" id=reply${replyID}>
             <h3>PUA:</h3>
+            <div class="ReplyContent" id="ReplyContent${replyID}">
             <p>❌请求失败，状态码：${xhr.status}</p>
+            </div>
             <div id="regenerate${replyID}">
                <button id="regeneratebtn${replyID}">Regenerate</button>
             </div>
@@ -485,6 +528,7 @@
           interaction.scrollTop=interaction.scrollHeight;
           historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
           historical_reply[replyID].addEventListener('click',resendrequest);
+          // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
           replyID++;
           console.log(historical_reply);
           console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
@@ -508,17 +552,28 @@
           xhr.send(JSON.stringify(data));
         }
     }
-    //生成回复
+    //生成回复***********************************
     function sendrequest(){
       if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
-        interaction.innerHTML=interaction.innerHTML+`<div class="content"><h3>You:</h3><p>${document.getElementById("query").value}</p></div>`;
+        interaction.innerHTML=interaction.innerHTML+`
+        <div class="content">
+          <h3>You:</h3>
+          <div class="ReplyContent">
+          <p>${document.getElementById("query").value}</p>
+          </div>
+        </div>
+        `;
         interaction.scrollTop=interaction.scrollHeight;
         query=document.getElementById("query").value;
         document.getElementById("query").value='';
         console.log("query: "+query);
         if(replyID!=0){
-          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+          try{
+            getElementById(`regenerate${replyID-1}`).innerHTML='';
+          }catch(error){
+            console.log(error);
+          }
         }
         //添加用户历史对话
         historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
@@ -535,7 +590,7 @@
         xhr.onload = function() {
           if (xhr.status === 200) {
             let Response=JSON.parse(xhr.responseText);
-            console.log(xhr.responseText);
+            console.log(Response);
             //添加GPT历史对话
             historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
             if(historical_dialogue.length>max_dialogue_record){
@@ -546,7 +601,10 @@
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id="reply${replyID}">
               <h3>PUA:</h3>
-              ${htmltext}
+              <div class="ReplyContent" id="ReplyContent${replyID}">
+                ${htmltext}
+              </div>
+              <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
               <div id="regenerate${replyID}">
                 <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>
@@ -555,13 +613,18 @@
             interaction.scrollTop=interaction.scrollHeight;
             historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
             historical_reply[replyID].addEventListener('click',resendrequest);
+            // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
+            // historical_tocopy[replyID].addEventListener('mouseover',showCopyButton);
+            // historical_tocopy[replyID].addEventListener('mouseout',hideCopyButton);
             replyID++;
             console.log(historical_reply);
           }else{
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id=reply${replyID}>
               <h3>PUA:</h3>
+              <div class="ReplyContent" id="ReplyContent${replyID}">
               <p>❌请求失败，状态码：${xhr.status}</p>
+              </div>
               <div id="regenerate${replyID}">
                 <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>
@@ -570,6 +633,7 @@
             interaction.scrollTop=interaction.scrollHeight;
             historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
             historical_reply[replyID].addEventListener('click',resendrequest);
+            // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
             replyID++;
             console.log(historical_reply);
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
@@ -594,15 +658,25 @@
         }
       }
     }
-    //使用回车发送内容生成回复
+    //使用回车发送内容生成回复***********************************
     function sendrequestKey(){
       if(event.code=='Enter'){
         sendrequest();
       }
     }
     btn.addEventListener("click",sendrequest);
-    //回车发送内容
+    //回车发送内容***********************************
     document.addEventListener("keydown",sendrequestKey);
+    //复制对话内容***********************************
+    function copyContent(id){
+      var content_text=document.getElementById(`ReplyContent${id}`).innerText;
+      var textarea=document.createElement("textarea");
+      textarea.value=content_text;
+      document.body.appendChild(textarea);
+      textarea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textarea);
+    }
   </script>
 </body>
 </html>
