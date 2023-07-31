@@ -27,6 +27,7 @@
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
       width: 75%;
+      height: 90%;
     }
     .mainbox h2 {
       margin-top: 0;
@@ -55,7 +56,7 @@
       border-radius: 20px;
       cursor: pointer;
       padding: 10px;
-      width: 20%;
+      width: 80px;
       height: 100%;
       float: right;
       margin: 5px;
@@ -67,7 +68,7 @@
     }
     .interaction{
       border: 2px solid black;
-      height: 400px;
+      height: 70%;
       overflow-y: scroll;
       margin-bottom: 8px;
       border-radius: 10px;
@@ -75,7 +76,7 @@
 
     .interaction button{
       height: 5%;
-      width: 20%;
+      width: 85px;
       padding-bottom: 10px;
       margin-bottom: 5px;
       height: 100%;
@@ -293,10 +294,22 @@
             <div class="content" id="replyprompt">
               <h3>PUA:</h3>
               <div class="ReplyContent">
-              <p>人格加载成功！</p>
+              <p id="promptsuccess"></p>
               </div>
             </div>
             `;
+            var text=`人格加载成功！`;
+            var index=0;
+            var textElement = document.getElementById(`promptsuccess`);
+            function showText() {
+              if (index < text.length) {
+                textElement.innerHTML += text.charAt(index);
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20); 
+              }
+            }
+            showText();
             //添加GPT历史对话
             historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
             if(historical_dialogue.length>max_dialogue_record){
@@ -304,15 +317,29 @@
             }
             console.log(historical_reply);
           }else{
+            var text=`❌请求失败，状态码：${xhr.status}`
             interaction.innerHTML=interaction.innerHTML+`
-            <div class="content">
+            <div class="content" id=reply${replyID}>
               <h3>PUA:</h3>
-              <div class="ReplyContent">
-              <p>❌请求失败，状态码：${xhr.status}</p>
+              <div class="ReplyContent" id="ReplyContent${replyID}">
+              <p id='prompterror${replyID}'></p>
+              </div>
+              <div id="regenerate${replyID}">
+                <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>
             </div>
             `;
-            interaction.scrollTop=interaction.scrollHeight;
+            var index = 0;
+            var textElement = document.getElementById(`prompterror${replyID}`);
+            function showText() {
+              if (index < text.length) {
+                textElement.innerHTML += text.charAt(index);
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20); 
+              }
+            }
+            showText();
             console.log(historical_reply);
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
           }
@@ -497,7 +524,7 @@
           <div class="content" id="reply${replyID}">
             <h3>PUA:</h3>
             <div class="ReplyContent" id="ReplyContent${replyID}">
-            ${htmltext}
+            
             </div>
             <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
             <div id="regenerate${replyID}">
@@ -505,30 +532,49 @@
             </div>
           </div>
           `;
-          interaction.scrollTop=interaction.scrollHeight;
+          var index = 0;
+          var temp='';
+          var textElement = document.getElementById(`ReplyContent${replyID}`);
+          function showText() {
+             if (index < htmltext.length) {
+              temp+=htmltext.charAt(index);
+              textElement.innerHTML=`${temp}`;
+              interaction.scrollTop=interaction.scrollHeight;
+              index++;
+              setTimeout(showText, 20);
+            }
+          }
+          showText();
           historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
           historical_reply[replyID].addEventListener('click',resendrequest);
-          // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
-          // historical_tocopy[replyID].addEventListener('mouseover',showCopyButton);
-          // historical_tocopy[replyID].addEventListener('mouseout',hideCopyButton);
           replyID++;
           console.log(historical_reply);
         }else{
+          var text=`❌请求失败，状态码：${xhr.status}`
           interaction.innerHTML=interaction.innerHTML+`
           <div class="content" id=reply${replyID}>
             <h3>PUA:</h3>
             <div class="ReplyContent" id="ReplyContent${replyID}">
-            <p>❌请求失败，状态码：${xhr.status}</p>
+            <p id='texterror${replyID}'></p>
             </div>
             <div id="regenerate${replyID}">
-               <button id="regeneratebtn${replyID}">Regenerate</button>
+              <button id="regeneratebtn${replyID}">Regenerate</button>
             </div>
           </div>
-         `;
-          interaction.scrollTop=interaction.scrollHeight;
+          `;
+          var index = 0;
+          var textElement = document.getElementById(`texterror${replyID}`);
+          function showText() {
+            if (index < text.length) {
+              textElement.innerHTML += text.charAt(index);
+              interaction.scrollTop=interaction.scrollHeight;
+              index++;
+              setTimeout(showText, 20); 
+            }
+          }
+          showText();
           historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
           historical_reply[replyID].addEventListener('click',resendrequest);
-          // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
           replyID++;
           console.log(historical_reply);
           console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
@@ -607,7 +653,7 @@
             <div class="content" id="reply${replyID}">
               <h3>PUA:</h3>
               <div class="ReplyContent" id="ReplyContent${replyID}">
-                ${htmltext}
+              
               </div>
               <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
               <div id="regenerate${replyID}">
@@ -615,27 +661,47 @@
               </div>
             </div>
             `;
-            interaction.scrollTop=interaction.scrollHeight;
+            var index = 0;
+            var temp='';
+            var textElement = document.getElementById(`ReplyContent${replyID}`);
+            function showText() {
+              if (index < htmltext.length) {
+                temp+=htmltext.charAt(index);
+                textElement.innerHTML=`${temp}`;
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20);
+              }
+            }
+            showText();
             historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
             historical_reply[replyID].addEventListener('click',resendrequest);
-            // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
-            // historical_tocopy[replyID].addEventListener('mouseover',showCopyButton);
-            // historical_tocopy[replyID].addEventListener('mouseout',hideCopyButton);
             replyID++;
             console.log(historical_reply);
           }else{
+            var text=`❌请求失败，状态码：${xhr.status}`
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id=reply${replyID}>
               <h3>PUA:</h3>
               <div class="ReplyContent" id="ReplyContent${replyID}">
-              <p>❌请求失败，状态码：${xhr.status}</p>
+              <p id='texterror${replyID}'></p>
               </div>
               <div id="regenerate${replyID}">
                 <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>
             </div>
             `;
-            interaction.scrollTop=interaction.scrollHeight;
+            var index = 0;
+            var textElement = document.getElementById(`texterror${replyID}`);
+            function showText() {
+              if (index < text.length) {
+                textElement.innerHTML += text.charAt(index);
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20); 
+              }
+            }
+            showText();
             historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
             historical_reply[replyID].addEventListener('click',resendrequest);
             // historical_tocopy.push(document.getElementById(`ReplyContent${replyID}`))
