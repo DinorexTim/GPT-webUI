@@ -754,8 +754,9 @@
       document.body.removeChild(textarea);
     }
     document.getElementById('back').addEventListener('click',()=>{
-      alert('返回登录界面');
-      window.location.href="/"
+      if(confirm("确认返回登录界面？")){
+        window.location.href="/"
+      }
     });
   </script>
 </body>
