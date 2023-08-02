@@ -26,6 +26,8 @@
       border-radius: 4px;
       box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
       padding: 20px;
+      margin-right: 12.5%;
+      margin-left: 6%;
       width: 75%;
       height: 90%;
     }
@@ -66,6 +68,26 @@
         transition-duration: 0.3s;
         background-color: #45a049;
     }
+
+    .back{
+      background-color: #333;
+      color: #fff;
+      border: 0;
+      border-radius: 10px;
+      cursor: pointer;
+      width: 40px;
+      height: 30px;
+      float: right;
+      margin: 5px;
+      float: left;
+      font-size: large;
+    }
+
+    .back:hover{
+      transition-duration: 0.3s;
+      background-color: #45a049;
+    }
+
     .interaction{
       border: 2px solid black;
       height: 70%;
@@ -92,12 +114,6 @@
       padding-left: 5px;
       padding-right: 5px;
     }
-    /* .ReplyContent button{
-      width: 60px;
-      margin-right: 2px;
-      border-radius: 20px;
-      margin: 5px;
-    } */
     .options {
       display: flex;
       align-items: center;
@@ -123,6 +139,7 @@
     </style>
 </head>
 <body>
+  <button class="back" id="back">←</button>
   <div class="container">
     <div class="mainbox">
         <h2>ChatPUA👍🏻</h2>
@@ -736,6 +753,10 @@
       document.execCommand('copy');
       document.body.removeChild(textarea);
     }
+    document.getElementById('back').addEventListener('click',()=>{
+      alert('返回登录界面');
+      window.location.href="/"
+    });
   </script>
 </body>
 </html>
