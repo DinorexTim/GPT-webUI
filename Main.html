@@ -203,7 +203,7 @@
     const MODEL3=document.getElementById("model3");
     const Contextlinkage=document.getElementById("Context-linkage")
     const Temperature=document.getElementById("temperature");
-    const prompt=document.getElementById("prompt");
+    const setprompt=document.getElementById("prompt");
     const audiototext=document.getElementById("audiototext");
     const texttoimage=document.getElementById("texttoimage");
     const SIZE1=document.getElementById("size1");
@@ -211,8 +211,6 @@
     const SIZE3=document.getElementById("size3");
     const NUMofIMAGES=document.getElementById("images-range");
 
-    var orgid="";
-    var APIkey="";
     var query="";
     var model="gpt-3.5-turbo";
     var isContextLinkage=1;
@@ -272,98 +270,110 @@
       document.getElementById("value").innerHTML=`<h2 style="height: 50px;">Temperature:${temperature/10}</h2>`;
     })
 
-    //获取输入的orgid与APIkey***********************************
-    fetch('get-info')
-    .then(response=>response.json())
-    .then(data=>{
-      orgid=data.orgid;
-      APIkey=data.APIkey;
-    })
-    .catch(error=>console.log(error));
-
     //添加预设人格***********************************
-    prompt.addEventListener('click',()=>{
-      if(document.getElementById("query").value!=''){
-        console.log("已发送请求...");     
-        query=document.getElementById("query").value;
-        document.getElementById("query").value='';
-        console.log("query: "+query);
-        if(replyID!=0){
-          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
-        }
-        //添加用户历史对话
-        historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
-        if(historical_dialogue.length>max_dialogue_record){
-          historical_dialogue.shift();
-        }
-        console.log("历史对话:");
-        console.log(JSON.stringify(historical_dialogue));
-        //发送请求
-        const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
-        xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
-        xhr.setRequestHeader('Content-Type', 'application/json');
-        xhr.onload = function() {
-          if (xhr.status === 200) {
-            let Response=JSON.parse(xhr.responseText);
-            console.log(xhr.responseText);
-            interaction.innerHTML=interaction.innerHTML+`
-            <div class="content" id="replyprompt">
-              <h3>PUA:</h3>
-              <div class="ReplyContent">
-              <p id="promptsuccess"></p>
-              </div>
-            </div>
-            `;
-            var text=`人格加载成功！`;
-            var index=0;
-            var textElement = document.getElementById(`promptsuccess`);
-            function showText() {
-              if (index < text.length) {
-                textElement.innerHTML += text.charAt(index);
-                interaction.scrollTop=interaction.scrollHeight;
-                index++;
-                setTimeout(showText, 20); 
-              }
-            }
-            showText();
-            //添加GPT历史对话
-            historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
-            if(historical_dialogue.length>max_dialogue_record){
-              historical_dialogue.shift();
-            }
-            console.log(historical_reply);
-          }else{
-            interaction.innerHTML=interaction.innerHTML+`
-            <div class="content">
-              <h3>PUA:</h3>
-              <div class="ReplyContent">
-              <p>❌请求失败，状态码：${xhr.status}</p>
-              </div>
-            </div>
-            `;
-            console.log(historical_reply);
-            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-          }
-        };
-        if(isContextLinkage){
-          const data = {
-            "model": model,
-            "messages": historical_dialogue,
-            "temperature": temperature/10,
-          };
-          console.log(data);
-          xhr.send(JSON.stringify(data));
-        }else{
-          const data = {
-            "model": model,
-            "messages": [{"role":"user","content":query}],
-            "temperature": temperature/10,
-          };
-          console.log(data);
-          xhr.send(JSON.stringify(data));
+    setprompt.addEventListener('click',()=>{
+      console.log('预设人格...');
+      var orgid="";
+      var APIkey="";
+      async function getAPIkey() {
+        try {
+          const response = await fetch('get-info');
+          const data = await response.json();
+          return data.APIkey;
+        } catch (error) {
+          console.log(error);
+          return null;
         }
       }
+      async function apikey() {
+        APIkey = await getAPIkey();
+      }
+      async function sendRequest(){
+        await apikey();
+        if(document.getElementById("query").value!=''){
+          console.log("已发送请求...");     
+          query=document.getElementById("query").value;
+          document.getElementById("query").value='';
+          console.log("query: "+query);
+          if(replyID!=0){
+            document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+          }
+          //添加用户历史对话
+          historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
+          if(historical_dialogue.length>max_dialogue_record){
+            historical_dialogue.shift();
+          }
+          console.log("历史对话:");
+          console.log(JSON.stringify(historical_dialogue));
+          //发送请求
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+          await apikey();
+          xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.onload = function() {
+            if (xhr.status === 200) {
+              let Response=JSON.parse(xhr.responseText);
+              console.log(xhr.responseText);
+              interaction.innerHTML=interaction.innerHTML+`
+              <div class="content" id="replyprompt">
+                <h3>PUA:</h3>
+                <div class="ReplyContent">
+                <p id="promptsuccess"></p>
+                </div>
+              </div>
+              `;
+              var text=`人格加载成功！`;
+              var index=0;
+              var textElement = document.getElementById(`promptsuccess`);
+              function showText() {
+                if (index < text.length) {
+                  textElement.innerHTML += text.charAt(index);
+                  interaction.scrollTop=interaction.scrollHeight;
+                  index++;
+                  setTimeout(showText, 20); 
+                }
+              }
+              showText();
+              //添加GPT历史对话
+              historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+              if(historical_dialogue.length>max_dialogue_record){
+                historical_dialogue.shift();
+              }
+              console.log(historical_reply);
+            }else{
+              interaction.innerHTML=interaction.innerHTML+`
+              <div class="content">
+                <h3>PUA:</h3>
+                <div class="ReplyContent">
+                <p>❌请求失败，状态码：${xhr.status}</p>
+                </div>
+              </div>
+              `;
+              console.log(historical_reply);
+              console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+            }
+          };
+          if(isContextLinkage){
+            const data = {
+              "model": model,
+              "messages": historical_dialogue,
+              "temperature": temperature/10,
+            };
+            console.log(data);
+            xhr.send(JSON.stringify(data));
+          }else{
+            const data = {
+              "model": model,
+              "messages": [{"role":"user","content":query}],
+              "temperature": temperature/10,
+            };
+            console.log(data);
+            xhr.send(JSON.stringify(data));
+          }
+        }
+      }
+      sendRequest();
     });
     //语音转文字(bug)***********************************
     audiototext.addEventListener('click',()=>{
@@ -433,178 +443,232 @@
     });
     //文字生成图片***********************************
     texttoimage.addEventListener('click',()=>{
-      if(document.getElementById("query").value!=''){
-        console.log("已发送请求...");     
-        interaction.innerHTML=interaction.innerHTML+`
-        <div class="content">
-          <h3>You:</h3>
-          <div class="ReplyContent">
-          <p>${document.getElementById("query").value}</p>
-          </div>
-        </div>
-        `;
-        interaction.scrollTop=interaction.scrollHeight;
-        query=document.getElementById("query").value;
-        document.getElementById("query").value='';
-        console.log("query: "+query);
-        if(replyID){
-          document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+      var orgid="";
+      var APIkey="";
+      async function getAPIkey() {
+        try {
+          const response = await fetch('get-info');
+          const data = await response.json();
+          return data.APIkey;
+        } catch (error) {
+          console.log(error);
+          return null;
         }
+      }
+      async function apikey() {
+        APIkey = await getAPIkey();
+      }
+      async function sendRequest(){
+        if(document.getElementById("query").value!=''){
+          console.log("已发送请求...");     
+          interaction.innerHTML=interaction.innerHTML+`
+          <div class="content">
+            <h3>You:</h3>
+            <div class="ReplyContent">
+            <p>${document.getElementById("query").value}</p>
+            </div>
+          </div>
+          `;
+          interaction.scrollTop=interaction.scrollHeight;
+          query=document.getElementById("query").value;
+          document.getElementById("query").value='';
+          console.log("query: "+query);
+          if(replyID){
+            document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+          }
+          //发送请求
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'https://api.openai.com/v1/images/generations');
+          await apikey();
+          xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
+          xhr.setRequestHeader('Content-Type', 'application/json');
+          xhr.onload = function() {
+            if (xhr.status === 200) {
+              let Response=JSON.parse(xhr.responseText);
+              console.log(Response);
+              //增添回复
+              interaction.innerHTML=interaction.innerHTML+`
+                <div class="content">
+                  <h3>PUA:</h3>
+                </div>
+                `;
+              for(var cnt=0;cnt<numofimages;cnt++){
+                interaction.innerHTML=interaction.innerHTML+`
+                <div class="content">
+                  <img src='${Response.data[cnt].url}' alt=''>
+                </div>
+                `;
+                interaction.scrollTop=interaction.scrollHeight;
+              }
+            }else{
+              interaction.innerHTML=interaction.innerHTML+`
+              <div class="content">
+                <h3>PUA:</h3>
+                <div class="ReplyContent">
+                <p>❌请求失败，状态码：${xhr.status}</p>
+                </div>
+              </div>
+              `;
+              interaction.scrollTop=interaction.scrollHeight;
+              console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+            }
+          };
+          const data = {
+            "prompt": query,
+            "n":parseInt(numofimages),
+            "size":size,
+          };
+          console.log(data);
+          xhr.send(JSON.stringify(data));
+        }
+      }
+      sendRequest();
+    });
+    //重新生成回复***********************************
+    function resendrequest(){      
+      console.log("Regenerating...");
+      var orgid="";
+      var APIkey="";
+      async function getAPIkey() {
+        try {
+          const response = await fetch('get-info');
+          const data = await response.json();
+          return data.APIkey;
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      }
+      async function apikey() {
+        APIkey = await getAPIkey();
+      }
+      async function sendRequest(){
+        historical_dialogue.pop();
+        if(replyID){
+        document.getElementById(`reply${replyID-1}`).innerHTML='';
+        }
+        console.log("已发送请求...");
+        console.log("query: "+query);
+        console.log("历史对话:");
+        console.log(JSON.stringify(historical_dialogue));
         //发送请求
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'https://api.openai.com/v1/images/generations');
+        xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+        await apikey();
         xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
           if (xhr.status === 200) {
             let Response=JSON.parse(xhr.responseText);
             console.log(Response);
-            //增添回复
-            interaction.innerHTML=interaction.innerHTML+`
-              <div class="content">
-                <h3>PUA:</h3>
-              </div>
-              `;
-            for(var cnt=0;cnt<numofimages;cnt++){
-              interaction.innerHTML=interaction.innerHTML+`
-              <div class="content">
-                <img src='${Response.data[cnt].url}' alt=''>
-              </div>
-              `;
-              interaction.scrollTop=interaction.scrollHeight;
+            //添加GPT历史对话
+            historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+            if(historical_dialogue.length>max_dialogue_record){
+              historical_dialogue.shift();
             }
-          }else{
+            //增添回复
+            var htmltext=marked(Response.choices[0].message.content);
             interaction.innerHTML=interaction.innerHTML+`
-            <div class="content">
+            <div class="content" id="reply${replyID}">
               <h3>PUA:</h3>
-              <div class="ReplyContent">
-              <p>❌请求失败，状态码：${xhr.status}</p>
+              <div class="ReplyContent" id="ReplyContent${replyID}">
+              
+              </div>
+              <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
+              <div id="regenerate${replyID}">
+                <button id="regeneratebtn${replyID}">Regenerate</button>
               </div>
             </div>
             `;
-            interaction.scrollTop=interaction.scrollHeight;
-            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-          }
-        };
-        const data = {
-          "prompt": query,
-          "n":parseInt(numofimages),
-          "size":size,
-        };
-        console.log(data);
-        xhr.send(JSON.stringify(data));
-      }
-    });
-    //重新生成回复***********************************
-    function resendrequest(){      
-      console.log("Regenerating...");
-      historical_dialogue.pop();
-      if(replyID){
-       document.getElementById(`reply${replyID-1}`).innerHTML='';
-      }
-      console.log("已发送请求...");
-      console.log("query: "+query);
-      console.log("历史对话:");
-      console.log(JSON.stringify(historical_dialogue));
-      //发送请求
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
-      xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.onload = function() {
-        if (xhr.status === 200) {
-          let Response=JSON.parse(xhr.responseText);
-          console.log(Response);
-          //添加GPT历史对话
-          historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
-          if(historical_dialogue.length>max_dialogue_record){
-            historical_dialogue.shift();
-          }
-          //增添回复
-          var htmltext=marked(Response.choices[0].message.content);
-          interaction.innerHTML=interaction.innerHTML+`
-          <div class="content" id="reply${replyID}">
-            <h3>PUA:</h3>
-            <div class="ReplyContent" id="ReplyContent${replyID}">
-            
-            </div>
-            <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
-            <div id="regenerate${replyID}">
-              <button id="regeneratebtn${replyID}">Regenerate</button>
-            </div>
-          </div>
-          `;
-          var index = 0;
-          var temp='';
-          var textElement = document.getElementById(`ReplyContent${replyID}`);
-          function showText() {
-             if (index < htmltext.length) {
-              temp+=htmltext.charAt(index);
-              if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
-                textElement.innerHTML=`${temp}`;
+            var index = 0;
+            var temp='';
+            var textElement = document.getElementById(`ReplyContent${replyID}`);
+            function showText() {
+              if (index < htmltext.length) {
+                temp+=htmltext.charAt(index);
+                if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
+                  textElement.innerHTML=`${temp}`;
+                }
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20);
               }
-              interaction.scrollTop=interaction.scrollHeight;
-              index++;
-              setTimeout(showText, 20);
             }
-          }
-          showText();
-          historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-          historical_reply[replyID].addEventListener('click',resendrequest);
-          replyID++;
-          console.log(historical_reply);
-        }else{
-          var text=`❌请求失败，状态码：${xhr.status}`
-          interaction.innerHTML=interaction.innerHTML+`
-          <div class="content" id=reply${replyID}>
-            <h3>PUA:</h3>
-            <div class="ReplyContent" id="ReplyContent${replyID}">
-            <p id='texterror${replyID}'></p>
+            showText();
+            historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
+            historical_reply[replyID].addEventListener('click',resendrequest);
+            replyID++;
+            console.log(historical_reply);
+          }else{
+            var text=`❌请求失败，状态码：${xhr.status}`
+            interaction.innerHTML=interaction.innerHTML+`
+            <div class="content" id=reply${replyID}>
+              <h3>PUA:</h3>
+              <div class="ReplyContent" id="ReplyContent${replyID}">
+              <p id='texterror${replyID}'></p>
+              </div>
+              <div id="regenerate${replyID}">
+                <button id="regeneratebtn${replyID}">Regenerate</button>
+              </div>
             </div>
-            <div id="regenerate${replyID}">
-              <button id="regeneratebtn${replyID}">Regenerate</button>
-            </div>
-          </div>
-          `;
-          var index = 0;
-          var textElement = document.getElementById(`texterror${replyID}`);
-          function showText() {
-            if (index < text.length) {
-              textElement.innerHTML += text.charAt(index);
-              interaction.scrollTop=interaction.scrollHeight;
-              index++;
-              setTimeout(showText, 20); 
+            `;
+            var index = 0;
+            var textElement = document.getElementById(`texterror${replyID}`);
+            function showText() {
+              if (index < text.length) {
+                textElement.innerHTML += text.charAt(index);
+                interaction.scrollTop=interaction.scrollHeight;
+                index++;
+                setTimeout(showText, 20); 
+              }
             }
-          }
-          showText();
-          historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-          historical_reply[replyID].addEventListener('click',resendrequest);
-          replyID++;
-          console.log(historical_reply);
-          console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-       }
-       };
-       if(isContextLinkage){
-         const data = {
-           "model": model,
-           "messages": historical_dialogue,
-           "temperature": temperature/10,
-         };
-         console.log(data);
-         xhr.send(JSON.stringify(data));
-        }else{
+            showText();
+            historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
+            historical_reply[replyID].addEventListener('click',resendrequest);
+            replyID++;
+            console.log(historical_reply);
+            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
+        }
+        };
+        if(isContextLinkage){
           const data = {
             "model": model,
-            "messages": [{"role":"user","content":query}],
+            "messages": historical_dialogue,
             "temperature": temperature/10,
           };
           console.log(data);
           xhr.send(JSON.stringify(data));
-        }
+          }else{
+            const data = {
+              "model": model,
+              "messages": [{"role":"user","content":query}],
+              "temperature": temperature/10,
+            };
+            console.log(data);
+            xhr.send(JSON.stringify(data));
+          }
+      }
+      sendRequest();
     }
     //生成回复***********************************
     function sendrequest(){
-      if(document.getElementById("query").value!=''){
+      var orgid="";
+      var APIkey="";
+      async function getAPIkey() {
+        try {
+          const response = await fetch('get-info');
+          const data = await response.json();
+          return data.APIkey;
+        } catch (error) {
+          console.log(error);
+          return null;
+        }
+      }
+      async function apikey() {
+        APIkey = await getAPIkey();
+      }
+      async function sendRequest(){
+        if(document.getElementById("query").value!=''){
         console.log("已发送请求...");     
         interaction.innerHTML=interaction.innerHTML+`
         <div class="content">
@@ -640,6 +704,7 @@
         //发送请求
         const xhr = new XMLHttpRequest();
         xhr.open('POST', 'https://api.openai.com/v1/chat/completions');
+        await apikey();
         xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
@@ -733,6 +798,8 @@
           xhr.send(JSON.stringify(data));
         }
       }
+      }
+      sendRequest();
     }
     //使用回车发送内容生成回复***********************************
     function sendrequestKey(){
