@@ -13,18 +13,33 @@
 - [x] 支持markdown渲染
 - [ ] 重新编辑发送内容
 - [ ] 历史对话存储
-- [ ] ~~支持语音输入~~
 # 快速开始
 ## NodeJS
-- 下载以下模块
+- 使用npm安装以下模块
 ```
-npm install express querystring body-parser
+npm install express querystring body-parser mysql2 js-yaml express-session
 ```
 - 将源代码下载至本地
 ```
 git clone https://github.com/DINOREXNB/GPT_Web.git
 ```
-- 进入工作区后，执行
+- 进入工作区后，将`Settings_example.yaml`重命名为`Settings.yaml`，编辑配置文件
+```
+# 数据库配置信息(optional)
+mysql:
+ host: 'localhost'
+ port: 3306
+ user: 'root'
+ password: '114514'
+ database: 'client'
+
+# 服务器配置(required)
+server:
+ ip: "localhost"
+ port: 1145
+ location: "https://example.com"
+```
+- 启动服务器
 ```
 node server.js
 ```
