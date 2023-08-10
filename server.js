@@ -23,6 +23,7 @@ const fs=require("fs");
 var app=express();
 const ip="localhost";
 const port=1111;
+const location="http://74a3da38.r17.cpolar.top";
 var body=[];
 var User=new Map();
 var orgid='';
@@ -46,7 +47,7 @@ let connectInfo = mysql.createConnection({
 	port: '3306',
 	user: 'root',
 	password: 'WangHan@520',
-	database: 'user'
+	database: 'client'
 })
 //数据库建立连接
 connectInfo.connect((err)=>{
@@ -58,13 +59,13 @@ connectInfo.connect((err)=>{
 /********************处理请求********************/
 app.use('/GPT_Web',express.static('GPT_Web'))
 app.get('/', (req,res)=>{
-    res.sendFile(__dirname+"/"+"/Index.html");
     if (req.session.sign) {//检查用户是否已经登录
       console.log(req.session);//打印session的值
-      res.redirect("http://568a6702.r17.cpolar.top/Main.html");
+      res.redirect(`${location}/Main.html`);
     }else{
       req.session.sign = true;
       req.session.name = 'Client';
+      res.sendFile(__dirname+"/"+"/Index.html");
     }
     console.log("访问欢迎界面");
 });
@@ -84,7 +85,7 @@ app.post('/process-login',(req,res)=>{
       orgid=body.orgid;
       body=[];
       // res.redirect(`http://${ip}:${port}/Main.html`);
-      res.redirect("http://568a6702.r17.cpolar.top/Main.html");
+      res.redirect(`${location}/Main.html`);
     })
 });
 //查询APIkey
