@@ -5,6 +5,7 @@ var session=require('express-session');
 var http=require("http");
 var mysql=require('mysql2');
 const fs=require("fs");
+const yaml = require('js-yaml');
 
 // const { Configuration, OpenAIApi } = require('openai');
 // const configuration = new Configuration({
@@ -19,11 +20,19 @@ const fs=require("fs");
 //   .catch(error => {
 //     console.error('Error:', error);
 //   });
-
+/********************读取Settings.yaml********************/
+var settings;
+try {
+  const yamlContent = fs.readFileSync('Settings.yaml', 'utf8');
+  settings = yaml.load(yamlContent);
+  console.log(settings);
+} catch (error) {
+  console.error('Error reading or parsing YAML file:', error);
+}
 var app=express();
-const ip="localhost";
-const port=1111;
-const location="http://74a3da38.r17.cpolar.top";
+const ip=settings.server.ip;
+const port=settings.server.port;
+const location=settings.server.location;
 var body=[];
 var User=new Map();
 var orgid='';
@@ -43,11 +52,11 @@ app.use(session({
 /********************MySQL数据库********************/
 //配置本机mysql连接基本信息
 let connectInfo = mysql.createConnection({
-	host: 'localhost',
-	port: '3306',
-	user: 'root',
-	password: 'WangHan@520',
-	database: 'client'
+	host: settings.mysql.host,
+	port: settings.mysql.port,
+	user: settings.mysql.user,
+	password: settings.mysql.password,
+	database: settings.mysql.database,
 })
 //数据库建立连接
 connectInfo.connect((err)=>{

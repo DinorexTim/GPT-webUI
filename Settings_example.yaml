@@ -1,0 +1,13 @@
+# 数据库配置信息(optional)
+mysql:
+ host: 'localhost'
+ port: 3306
+ user: 'root'
+ password: '114514'
+ database: 'client'
+
+# 服务器配置(required)
+server:
+ ip: "localhost"
+ port: 1145
+ location: "https://example.com"
