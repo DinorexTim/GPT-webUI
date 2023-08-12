@@ -760,8 +760,6 @@ function saveDialogue(){
     .then(response => {
         if (!response.ok) {
             throw new Error(`Request failed with status: ${response.status}`);
-        }else{
-            console.log("保存对话成功！");
         }
     })
     .catch(error => {
@@ -802,6 +800,12 @@ conversationOptions.addEventListener('click', function(event) {
         }
         //创建新对话
         if(selectedIndex==-1){
+            selectedOption.textContent = event.target.textContent;
+            historical_dialogue=[];    
+            historical_reply=[];
+            historical_tocopy=[];
+            replyID=0;
+            spinner_cnt=0;
             interaction.innerHTML='';
             document.getElementById("query").value='';
             dialogue_id++;
@@ -822,9 +826,18 @@ async function getorgID(){
     }
 }
 
-//TODO:获取目前对话ID
+//获取历史对话ID最大值
 async function getDialogueID(){
-
+    try {
+        const response = await fetch('sendDialogueID',{
+            method:'POST'
+        });
+        const data = await response.json();
+        console.log(data);
+        dialogue_id=data.id;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 }
 getorgID();
-getDialogueID();

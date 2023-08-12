@@ -28,7 +28,9 @@
       margin-right: 12.5%;
       margin-left: 6%;
       width: 75%;
-      height: 90%;
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
     }
     .mainbox h2 {
       margin-top: 0;
@@ -110,6 +112,7 @@
       display: flex;
       align-items: center;
       justify-content: flex-end;
+      height: 40px;
     }
     .options {
       display: flex;
@@ -184,9 +187,9 @@
       position: absolute;
       display: none;
       background-color: #fff;
-      border: 1px solid #d1d5da;
+      border: 2px solid #000000;
       border-top: none;
-      border-radius: 0 0 6px 6px;
+      border-radius: 0 0 10px 10px;
       width: 100%;
       z-index: 1;
     }
@@ -220,7 +223,7 @@
           <img src="./images/prompt.png" alt="" id="prompt" class="prompt">
           <div class="custom-select">
             <div class="select-styled" id="selectedOption">
-              历史对话
+              New chat
               <span class="octicon octicon-triangle-down"></span>
             </div>
                 <ul class="select-options" id="conversationOptions">

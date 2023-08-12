@@ -229,6 +229,24 @@ app.post('/getorgid',(req,res)=>{
     status:'success'
   });
 });
+//发送对话ID********************************
+app.post('/sendDialogueID',(req,res)=>{
+  var ID=-1;
+  sql_id="SELECT id FROM `dialogue` ORDER BY id DESC LIMIT 1";
+  connectInfo.query(sql_id,(err,result,fields)=>{
+    if(err){
+      console.log('[SELECT ERROR] - ',err.message);
+      res.status(500).json({"id":-1,"status":"fail"});
+      return;
+    }
+    if(result.length>0){
+      ID = result[0].id;
+      res.json({ id: ID });
+    } else {
+      res.json({ id: null }); 
+    }
+  }); 
+});
 //存储历史对话********************************
 app.post('/saveDialogue',(req,res)=>{
   console.log("存储对话中...");
@@ -278,7 +296,7 @@ app.post('/loadDialogue',(req,res)=>{
 
 
 
-    
+
   })
   res.json({
     status:'success'
