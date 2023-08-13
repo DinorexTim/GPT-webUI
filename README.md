@@ -1,6 +1,6 @@
 # GPT_Web
 - 一个可与GPT聊天的网页客户端
-- 需要APIkey才能使用！
+- **需要APIkey**
 - 前往https://platform.openai.com/account/org-settings 查看你的组织ID
 - 前往https://platform.openai.com/account/api-keys 获取你的APIkey
 # 功能：
@@ -11,8 +11,7 @@
 - [x] 文字生成图片
 - [x] 加载预设人格
 - [x] 支持markdown渲染
-- [ ] 重新编辑发送内容
-- [ ] 历史对话存储
+- [x] 历史对话存储
 # 快速开始
 ## NodeJS
 - 使用npm安装以下模块
@@ -25,7 +24,7 @@ git clone https://github.com/DINOREXNB/GPT_Web.git
 ```
 - 进入工作区后，将`Settings_example.yaml`重命名为`Settings.yaml`，编辑配置文件
 ```
-# 数据库配置信息(optional)
+# 数据库配置信息(选填，存储历史对话用)
 mysql:
  host: 'localhost'
  port: 3306
@@ -33,11 +32,11 @@ mysql:
  password: '114514'
  database: 'client'
 
-# 服务器配置(required)
+# 服务器配置(必填)
 server:
- ip: "localhost"
+ host: "localhost"
  port: 1145
- location: "https://example.com"
+ location: "https://example.com"  #本机访问改成"http://loaclhost:1145"
 ```
 - 启动服务器
 ```

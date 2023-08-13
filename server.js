@@ -18,7 +18,7 @@ try {
 }
 /********************加载变量********************/
 var app=express();
-const ip=settings.server.ip;
+const host=settings.server.host;
 const port=settings.server.port;
 const location=settings.server.location;
 var body=[];//临时存储组织ID与APIkey
@@ -34,7 +34,7 @@ var spinner_cnt=0;
 http.createServer((request,response)=>{
     response.writeHead(200,{'Content-Type':'text/plain'});
 });
-console.log(`Server is running at http://${ip}:${port}`);
+console.log(`Server is running at http://${host}:${port}`);
 /*********************创建session**********************/
 app.use(session({
   secret:'gptweb1145141919810',
@@ -153,7 +153,11 @@ app.post('/process-login',(req,res)=>{
 });
 //请求获取APIkey********************************
 app.get('/get-info',(req,res)=>{
-  res.json({"orgid":orgid,"APIkey":User.get(orgid)});
+  if (req.session.sign){
+    res.json({"orgid":req.session.orgid,"APIkey":User.get(req.session.orgid)});
+  }else{
+    res.json({"orgid":orgid,"APIkey":User.get(orgid)});
+  }
 })
 //获取此时的对话ID********************************
 app.post('/getDialogueID' , (req , res)=>{
@@ -231,8 +235,7 @@ app.post('/getorgid',(req,res)=>{
 });
 //发送对话ID********************************
 app.post('/sendDialogueID',(req,res)=>{
-  var ID=-1;
-  sql_id="SELECT id FROM `dialogue` ORDER BY id DESC LIMIT 1";
+  sql_id="SELECT id FROM `dialogue` "+`WHERE orgid=${JSON.stringify(orgid)}`+" ORDER BY id DESC LIMIT 1";
   connectInfo.query(sql_id,(err,result,fields)=>{
     if(err){
       console.log('[SELECT ERROR] - ',err.message);
@@ -240,10 +243,12 @@ app.post('/sendDialogueID',(req,res)=>{
       return;
     }
     if(result.length>0){
-      ID = result[0].id;
-      res.json({ id: ID });
+      dialogue_id=result[0].id;
+      console.log("数据库id最大值为: ",dialogue_id);
+      res.json({ id: dialogue_id});
     } else {
-      res.json({ id: null }); 
+      console.log("数据库id最大值为: ",-1);
+      res.json({ id: -1 }); 
     }
   }); 
 });
@@ -288,19 +293,30 @@ app.post('/saveDialogue',(req,res)=>{
 //TODO:加载历史对话********************************
 app.post('/loadDialogue',(req,res)=>{
   console.log("加载对话中...");
+  var data;
   req.on('data',(chunk)=>{
     body.push(chunk);
   });
   req.on('end',()=>{
-
-
-
-
-
+    body = Buffer.concat(body).toString();
+    body = parseInt(body);
+    console.log("selectedIndex: ",body);
+    sql_load="SELECT * FROM `dialogue` where id"+`=${body} and orgid="${orgid}"`;
+    connectInfo.query(sql_load,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        return;
+      }
+      data={
+        "replyID":result[0].replyID,
+        "spinner_cnt":result[0].spinner_cnt,
+        "dialogueHTML":result[0].html,
+        "dialogue":result[0].conversation,
+      }
+      res.json(data);
+    });
+    body=[];
   })
-  res.json({
-    status:'success'
-  });
 });
 app.get('/delete-session',(req,res)=>{
   req.session.destroy(err => {

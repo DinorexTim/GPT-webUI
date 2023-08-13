@@ -59,7 +59,7 @@
       width: 80px;
       height: 100%;
       float: right;
-      margin: 5px;
+      margin: 3px;
     }
     .mainbox button:hover{
         transition-duration: 0.3s;
@@ -107,11 +107,12 @@
       padding-left: 5px;
       padding-right: 5px;
       overflow-x: auto;
+      margin-right: 5px;
     }
     .publicbar{
-      display: flex;
+      display: inline-block;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       height: 40px;
     }
     .options {
@@ -163,7 +164,7 @@
         }
     }
     .custom-select {
-      margin: 10px;
+      margin-bottom: 10px;
       display: inline-block;
       width: 200px;
     }
@@ -178,6 +179,7 @@
       background-color: #ffffff;
       color: #24292e;
       cursor: pointer;
+      height: 20px;
     }
     .octicon {
       vertical-align: middle;
@@ -189,9 +191,10 @@
       background-color: #fff;
       border: 2px solid #000000;
       border-top: none;
-      border-radius: 0 0 10px 10px;
-      width: 100%;
-      z-index: 1;
+      border-radius: 0 0 15px 0;
+      width: 25%;
+      overflow-y: scroll;
+      height: 250px;
     }
     .select-options.active {
       display: block;
@@ -209,9 +212,17 @@
 <body>
   <button class="back" id="back">←</button>
   <div class="container">
-    <div class="mainbox">
+    <div class="mainbox" id="mainbox">
         <h2>ChatPUA👍🏻</h2>
-        <h6 class="author">shitted by DINOREXNB</h6>
+        <div class="custom-select">
+          <div class="select-styled" id="selectedOption">
+            New chat
+            <span class="octicon octicon-triangle-down"></span>
+          </div>
+              <ul class="select-options" id="conversationOptions">
+                <li class="select-option" data-value="-1">New chat</li>
+              </ul>
+        </div>
         <div class="interaction" id="interaction">
         </div>
         <div>
@@ -221,21 +232,9 @@
           <img src="./images/audiototext.png" alt="" id="audiototext" class="audiototext">
           <img src="./images/texttoimage.png" alt="" id="texttoimage" class="audiototext">
           <img src="./images/prompt.png" alt="" id="prompt" class="prompt">
-          <div class="custom-select">
-            <div class="select-styled" id="selectedOption">
-              New chat
-              <span class="octicon octicon-triangle-down"></span>
-            </div>
-                <ul class="select-options" id="conversationOptions">
-                  <li class="select-option" data-value="-1">New chat</li>
-                  <li class="select-option" data-value="0">历史对话1</li>
-                  <li class="select-option" data-value="1">历史对话2</li>
-                  <li class="select-option" data-value="2">历史对话3</li>
-                  <!-- 添加更多历史对话选项 -->
-                </ul>
-          </div>
-          <button type="submit" value="发送" id="submit">发送</button>
+          <button type="submit" value="发送" id="submit">发送</button>  
         </div>
+        
     </div>
   </div>
   <div class="options">

@@ -1,4 +1,3 @@
-# 数据库配置信息(optional)
 mysql:
  host: 'localhost'
  port: 3306
@@ -6,8 +5,8 @@ mysql:
  password: '114514'
  database: 'client'
 
-# 服务器配置(required)
+# 服务器配置(必填)
 server:
- ip: "localhost"
+ host: "localhost"
  port: 1145
- location: "https://example.com"
+ location: "https://example.com"  #本机访问改成"http://loaclhost:1145"

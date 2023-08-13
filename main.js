@@ -1,4 +1,4 @@
-const container=document.getElementById('container');
+const mainbox=document.getElementById('mainbox');
 const btn=document.getElementById("submit");
 const interaction=document.getElementById("interaction");
 const MODEL1=document.getElementById("model1");
@@ -20,18 +20,17 @@ var query="";
 var model="gpt-3.5-turbo";
 var isContextLinkage=1;
 var temperature=5;
-var historical_dialogue=[];    
-var historical_reply=[];
-var historical_tocopy=[];
+var historical_dialogue=[];
 var replyID=0;
 var spinner_cnt=0;
 var max_dialogue_record=20;
 var size="256x256";
 var numofimages=1;
 var formaudio = new FormData();
-var dialogue_id=0;
 var orgid='';
+var dialogue_id=0;
 var isclick=0;
+var isclicknewchat=0;
 
 //选择模型***********************************
 MODEL1.addEventListener('input',()=>{
@@ -133,51 +132,54 @@ setprompt.addEventListener('click',()=>{
         xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
         xhr.setRequestHeader('Content-Type', 'application/json');
         xhr.onload = function() {
-        if (xhr.status === 200) {
-            let Response=JSON.parse(xhr.responseText);
-            console.log(xhr.responseText);
-            document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-            interaction.innerHTML=interaction.innerHTML+`
-                <div class="content" id="replyprompt">
-                <h3>PUA:</h3>
-                <div class="ReplyContent">
-                <p id="promptsuccess"></p>
-                </div>
-                </div>
-            `;
-            var text=`人格加载成功！`;
-            var index=0;
-            var textElement = document.getElementById(`promptsuccess`);
-            function showText() {
-            if (index < text.length) {
-                textElement.innerHTML += text.charAt(index);
-                interaction.scrollTop=interaction.scrollHeight;
-                index++;
-                setTimeout(showText, 20); 
+            if (xhr.status === 200) {
+                let Response=JSON.parse(xhr.responseText);
+                console.log(xhr.responseText);
+                document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                interaction.innerHTML=interaction.innerHTML+`
+                    <div class="content" id="replyprompt">
+                    <h3>PUA:</h3>
+                    <div class="ReplyContent">
+                    <p id="promptsuccess"></p>
+                    </div>
+                    </div>
+                `;
+                var text=`人格加载成功！`;
+                var index=0;
+                var textElement = document.getElementById(`promptsuccess`);
+                function showText() {
+                    if (index < text.length) {
+                        textElement.innerHTML += text.charAt(index);
+                        interaction.scrollTop=interaction.scrollHeight;
+                        index++;
+                        setTimeout(showText, 20); 
+                    }else{
+                        //存储对话
+                        saveDialogue();
+                    }
+                }
+                showText();
+                //添加GPT历史对话
+                historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+                if(historical_dialogue.length>max_dialogue_record){
+                    historical_dialogue.shift();
+                }
+                //存储对话
+                saveDialogue();
+                console.log(historical_reply);
+            }else{
+                document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                interaction.innerHTML=interaction.innerHTML+`
+                    <div class="content">
+                    <h3>PUA:</h3>
+                    <div class="ReplyContent">
+                    <p>❌请求失败，状态码：${xhr.status}</p>
+                    </div>
+                    </div>
+                `;
+                console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
             }
-            }
-            showText();
-            //添加GPT历史对话
-            historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
-            if(historical_dialogue.length>max_dialogue_record){
-                historical_dialogue.shift();
-            }
-            //存储对话
-            saveDialogue();
-            console.log(historical_reply);
-        }else{
-            document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-            interaction.innerHTML=interaction.innerHTML+`
-                <div class="content">
-                <h3>PUA:</h3>
-                <div class="ReplyContent">
-                <p>❌请求失败，状态码：${xhr.status}</p>
-                </div>
-                </div>
-            `;
-            console.log(historical_reply);
-            console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-        }
+            spinner_cnt++;
         };
         if(isContextLinkage){
             const data = {
@@ -199,7 +201,6 @@ setprompt.addEventListener('click',()=>{
     }
     }
     sendRequest();
-    spinner_cnt++;
 });
 
 //语音转文字(bug)***********************************
@@ -314,37 +315,38 @@ texttoimage.addEventListener('click',()=>{
             xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
-            if (xhr.status === 200) {
-                let Response=JSON.parse(xhr.responseText);
-                console.log(Response);
-                //增添回复
-                document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-                interaction.innerHTML=interaction.innerHTML+`
-                    <div class="content">
-                        <h3>PUA:</h3>
-                    </div>
-                `;
-                for(var cnt=0;cnt<numofimages;cnt++){
+                if (xhr.status === 200) {
+                    let Response=JSON.parse(xhr.responseText);
+                    console.log(Response);
+                    //增添回复
+                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
                     interaction.innerHTML=interaction.innerHTML+`
                         <div class="content">
-                            <img src='${Response.data[cnt].url}' alt=''>
+                            <h3>PUA:</h3>
+                        </div>
+                    `;
+                    for(var cnt=0;cnt<numofimages;cnt++){
+                        interaction.innerHTML=interaction.innerHTML+`
+                            <div class="content">
+                                <img src='${Response.data[cnt].url}' alt=''>
+                            </div>
+                        `;
+                        interaction.scrollTop=interaction.scrollHeight;
+                    }
+                }else{
+                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    interaction.innerHTML=interaction.innerHTML+`
+                        <div class="content">
+                        <h3>PUA:</h3>
+                        <div class="ReplyContent">
+                        <p>❌请求失败，状态码：${xhr.status}</p>
+                        </div>
                         </div>
                     `;
                     interaction.scrollTop=interaction.scrollHeight;
+                    console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
                 }
-            }else{
-                document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-                interaction.innerHTML=interaction.innerHTML+`
-                    <div class="content">
-                    <h3>PUA:</h3>
-                    <div class="ReplyContent">
-                    <p>❌请求失败，状态码：${xhr.status}</p>
-                    </div>
-                    </div>
-                `;
-                interaction.scrollTop=interaction.scrollHeight;
-                console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-            }
+                spinner_cnt++;
             };
             const data = {
                 "prompt": query,
@@ -356,7 +358,6 @@ texttoimage.addEventListener('click',()=>{
         }
     }
     sendRequest();
-    spinner_cnt++;
 });
 
 //重新生成回复***********************************
@@ -406,11 +407,9 @@ function resendrequest(){
             if(historical_dialogue.length>max_dialogue_record){
                 historical_dialogue.shift();
             }
-            //存储对话
-            saveDialogue();
             //增添回复
             var htmltext=marked(Response.choices[0].message.content);
-            document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
+            document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id="reply${replyID}">
                 <h3>PUA:</h3>
@@ -435,16 +434,17 @@ function resendrequest(){
                     interaction.scrollTop=interaction.scrollHeight;
                     index++;
                     setTimeout(showText, 20);
+                }else{
+                    //存储对话
+                    saveDialogue();
                 }
             }
             showText();
-            historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-            historical_reply[replyID].addEventListener('click',resendrequest);
+            document.getElementById(`regeneratebtn${replyID}`).addEventListener('click',resendrequest);
             replyID++;
-            console.log(historical_reply);
         }else{
             var text=`❌请求失败，状态码：${xhr.status}`;
-            document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
+            document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
             interaction.innerHTML=interaction.innerHTML+`
                 <div class="content" id=reply${replyID}>
                     <h3>PUA:</h3>
@@ -467,12 +467,11 @@ function resendrequest(){
                 }
             }
             showText();
-            historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-            historical_reply[replyID].addEventListener('click',resendrequest);
+            document.getElementById(`regeneratebtn${replyID}`).addEventListener('click',resendrequest);
             replyID++;
-            console.log(historical_reply);
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
         }
+        spinner_cnt++;
     };
     if(isContextLinkage){
         const data = {
@@ -493,7 +492,6 @@ function resendrequest(){
         }
     }
     sendRequest();
-    spinner_cnt++;
 }
 
 //生成回复***********************************
@@ -516,6 +514,22 @@ function sendrequest(){
     async function sendRequest(){
         if(document.getElementById("query").value!=''){
             console.log("已发送请求..."); 
+            //若没有点击new chat并且对话为空自动创建对话
+            if((!isclicknewchat)&&(interaction.innerHTML=='')){
+                await getDialogueID();
+                historical_dialogue=[];    
+                historical_reply=[];
+                replyID=0;
+                spinner_cnt=0;
+                const newLiElement = document.createElement('li');//创建新的一行对话
+                newLiElement.classList.add('select-option');
+                newLiElement.setAttribute('data-value',`${dialogue_id}`);
+                newLiElement.textContent = `对话${dialogue_id}`;
+                conversationOptions.appendChild(newLiElement);
+                selectedOption.textContent=newLiElement.textContent;
+                conversationOptions.classList.remove('active');
+                isclicknewchat=1;
+            }
             interaction.innerHTML=interaction.innerHTML+`
                 <div class="content">
                 <h3>You:</h3>
@@ -532,16 +546,16 @@ function sendrequest(){
             document.getElementById("query").value='';
             console.log("query: "+query);
             if(replyID!=0){
-            var errortext="";
-            try{
-                document.getElementById(`regenerate${replyID-1}`).innerHTML='';
-            }catch(error){
-                errortext=error
-                console.log(errortext);
-            }
-            if(errortext==""){
-                document.getElementById(`regenerate${replyID-1}`).innerHTML='';
-            }
+                var errortext="";
+                try{
+                    document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+                }catch(error){
+                    errortext=error
+                    console.log(errortext);
+                }
+                if(errortext==""){
+                    document.getElementById(`regenerate${replyID-1}`).innerHTML='';
+                }
             }
             //添加用户历史对话
             historical_dialogue=historical_dialogue.concat([{"role":"user","content":query}]);
@@ -557,81 +571,79 @@ function sendrequest(){
             xhr.setRequestHeader('Authorization', 'Bearer '+APIkey);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.onload = function() {
-            if (xhr.status === 200) {
-                let Response=JSON.parse(xhr.responseText);
-                console.log(Response);
-                //添加GPT历史对话
-                historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
-                if(historical_dialogue.length>max_dialogue_record){
-                    historical_dialogue.shift();
-                }
-                //存储对话
-                saveDialogue();
-                //增添回复
-                var htmltext=marked(Response.choices[0].message.content);
-                document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-                interaction.innerHTML=interaction.innerHTML+`
-                <div class="content" id="reply${replyID}">
-                <h3>PUA:</h3>
-                <div class="ReplyContent" id="ReplyContent${replyID}">
-                
-                </div>
-                <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
-                <div id="regenerate${replyID}">
-                    <button id="regeneratebtn${replyID}">Regenerate</button>
-                </div>
-                </div>
-                `;
-                var index = 0;
-                var temp='';
-                var textElement = document.getElementById(`ReplyContent${replyID}`);
-                function showText() {
-                if (index < htmltext.length) {
-                    temp+=htmltext.charAt(index);
-                    if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
-                    textElement.innerHTML=`${temp}`;
+                if (xhr.status === 200) {
+                    let Response=JSON.parse(xhr.responseText);
+                    console.log(Response);
+                    //添加GPT历史对话
+                    historical_dialogue=historical_dialogue.concat([{"role":"assistant","content":Response.choices[0].message.content}]);
+                    if(historical_dialogue.length>max_dialogue_record){
+                        historical_dialogue.shift();
                     }
-                    interaction.scrollTop=interaction.scrollHeight;
-                    index++;
-                    setTimeout(showText, 20);
+                    //增添回复
+                    var htmltext=marked(Response.choices[0].message.content);
+                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    interaction.innerHTML=interaction.innerHTML+`
+                    <div class="content" id="reply${replyID}">
+                    <h3>PUA:</h3>
+                    <div class="ReplyContent" id="ReplyContent${replyID}">
+                    
+                    </div>
+                    <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
+                    <div id="regenerate${replyID}">
+                        <button id="regeneratebtn${replyID}">Regenerate</button>
+                    </div>
+                    </div>
+                    `;
+                    var index = 0;
+                    var temp='';
+                    var textElement = document.getElementById(`ReplyContent${replyID}`);
+                    function showText() {
+                        if (index < htmltext.length) {
+                            temp+=htmltext.charAt(index);
+                            if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
+                                textElement.innerHTML=`${temp}`;
+                            }
+                            interaction.scrollTop=interaction.scrollHeight;
+                            index++;
+                            setTimeout(showText, 20);
+                        }else{
+                            //存储对话
+                            saveDialogue();
+                        }
+                    }
+                    showText();
+                    document.getElementById(`regeneratebtn${replyID}`).addEventListener('click',resendrequest);
+                    replyID++;
+                }else{
+                    var text=`❌请求失败，状态码：${xhr.status}`;
+                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    interaction.innerHTML=interaction.innerHTML+`
+                        <div class="content" id=reply${replyID}>
+                        <h3>PUA:</h3>
+                        <div class="ReplyContent" id="ReplyContent${replyID}">
+                        <p id='texterror${replyID}'></p>
+                        </div>
+                        <div id="regenerate${replyID}">
+                            <button id="regeneratebtn${replyID}">Regenerate</button>
+                        </div>
+                        </div>
+                    `;
+                    var index = 0;
+                    var textElement = document.getElementById(`texterror${replyID}`);
+                    function showText() {
+                    if (index < text.length) {
+                        textElement.innerHTML += text.charAt(index);
+                        interaction.scrollTop=interaction.scrollHeight;
+                        index++;
+                        setTimeout(showText, 20); 
+                    }
+                    }
+                    showText();
+                    document.getElementById(`regeneratebtn${replyID}`).addEventListener('click',resendrequest);
+                    replyID++;
+                    console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
                 }
-                }
-                showText();
-                historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-                historical_reply[replyID].addEventListener('click',resendrequest);
-                replyID++;
-                console.log(historical_reply);
-            }else{
-                var text=`❌请求失败，状态码：${xhr.status}`;
-                document.getElementById(`spinner${spinner_cnt-1}`).innerHTML='';
-                interaction.innerHTML=interaction.innerHTML+`
-                <div class="content" id=reply${replyID}>
-                <h3>PUA:</h3>
-                <div class="ReplyContent" id="ReplyContent${replyID}">
-                <p id='texterror${replyID}'></p>
-                </div>
-                <div id="regenerate${replyID}">
-                    <button id="regeneratebtn${replyID}">Regenerate</button>
-                </div>
-                </div>
-                `;
-                var index = 0;
-                var textElement = document.getElementById(`texterror${replyID}`);
-                function showText() {
-                if (index < text.length) {
-                    textElement.innerHTML += text.charAt(index);
-                    interaction.scrollTop=interaction.scrollHeight;
-                    index++;
-                    setTimeout(showText, 20); 
-                }
-                }
-                showText();
-                historical_reply.push(document.getElementById(`regeneratebtn${replyID}`));
-                historical_reply[replyID].addEventListener('click',resendrequest);
-                replyID++;
-                console.log(historical_reply);
-                console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
-            }
+                spinner_cnt++;
             };
             if(isContextLinkage){
             const data = {
@@ -642,18 +654,17 @@ function sendrequest(){
             console.log(data);
             xhr.send(JSON.stringify(data));
             }else{
-            const data = {
-                "model": model,
-                "messages": [{"role":"user","content":query}],
-                "temperature": temperature/10,
-            };
-            console.log(data);
-            xhr.send(JSON.stringify(data));
+                const data = {
+                    "model": model,
+                    "messages": [{"role":"user","content":query}],
+                    "temperature": temperature/10,
+                };
+                console.log(data);
+                xhr.send(JSON.stringify(data));
             }
         }
     }
     sendRequest();
-    spinner_cnt++;
 }
 
 //使用回车发送内容生成回复***********************************
@@ -663,7 +674,7 @@ function sendrequestKey(){
     }
 }
 
-//发送聊天请求
+//发送聊天请求***********************************
 btn.addEventListener("click",sendrequest);
 
 //回车发送内容***********************************
@@ -782,39 +793,83 @@ function saveDialogue(){
     });
 }
 
+//加载历史对话***********************************
+async function loadDialogue(selectedIndex,orgid){
+    dialogue_id=selectedIndex;
+    fetch("/getorgid",{
+        method:'POST',
+        body:orgid,
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Request failed with status: ${response.status}`);
+        }
+    })
+    .catch(error => {
+        console.error('Request error:', error);
+    });
+    try {
+        const response = await fetch('loadDialogue',{
+            method:'POST',
+            body:selectedIndex,
+        });
+        const data = await response.json();
+        console.log("待加载对话:");
+        console.log(data);
+        //加载replyID,spinner_cnt
+        replyID=data.replyID;
+        spinner_cnt=data.spinner_cnt;
+        interaction.innerHTML=data.dialogueHTML;
+        historical_dialogue=JSON.parse(data.dialogue);
+        document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 
-selectedOption.addEventListener('click', function() {
+//显示历史对话***********************************
+selectedOption.addEventListener('mouseover', function() {
     conversationOptions.classList.toggle('active');
     isclick=1;
 });
 
-conversationOptions.addEventListener('click', function(event) {
+//隐藏历史对话***********************************
+mainbox.addEventListener('mouseleave',()=>{
+    conversationOptions.classList.remove('active');
+});
+
+//加载或创建新对话***********************************
+conversationOptions.addEventListener('click', async function(event) {
     if (event.target.classList.contains('select-option')) {
         const selectedIndex = event.target.getAttribute('data-value');
         if (selectedIndex >= 0) {
             selectedOption.textContent = event.target.textContent;
             conversationOptions.classList.remove('active');
-            // 更新选中的历史对话内容
-
-            
+            // 加载对话
+            loadDialogue(selectedIndex,orgid);
         }
         //创建新对话
-        if(selectedIndex==-1){
-            selectedOption.textContent = event.target.textContent;
+        if(selectedIndex==-1&&interaction.innerHTML.length>5){
+            await getDialogueID();
             historical_dialogue=[];    
             historical_reply=[];
-            historical_tocopy=[];
             replyID=0;
             spinner_cnt=0;
             interaction.innerHTML='';
             document.getElementById("query").value='';
-            dialogue_id++;
+            const newLiElement = document.createElement('li');//创建新的一行对话
+            newLiElement.classList.add('select-option');
+            newLiElement.setAttribute('data-value',`${dialogue_id}`);
+            newLiElement.textContent = `对话${dialogue_id}`;
+            selectedOption.textContent = newLiElement.textContent;
+            conversationOptions.appendChild(newLiElement);
             conversationOptions.classList.remove('active');
         }
     }
 });
 
-//获取orgid(用户名)
+//获取orgid(用户名)***********************************
 async function getorgID(){
     try {
         const response = await fetch('get-info');
@@ -826,7 +881,7 @@ async function getorgID(){
     }
 }
 
-//获取历史对话ID最大值
+//获取历史对话ID最大值***********************************
 async function getDialogueID(){
     try {
         const response = await fetch('sendDialogueID',{
@@ -834,10 +889,12 @@ async function getDialogueID(){
         });
         const data = await response.json();
         console.log(data);
-        dialogue_id=data.id;
+        dialogue_id=data.id+1;
     } catch (error) {
         console.log(error);
         return null;
     }
 }
+
 getorgID();
+interaction.innerHTML='';
