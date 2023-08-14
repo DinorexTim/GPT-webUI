@@ -23,7 +23,7 @@ var temperature=5;
 var historical_dialogue=[];
 var replyID=0;
 var spinner_cnt=0;
-var max_dialogue_record=20;
+var max_dialogue_record=14;
 var size="256x256";
 var numofimages=1;
 var formaudio = new FormData();
@@ -31,6 +31,7 @@ var orgid='';
 var dialogue_id=0;
 var isclick=0;
 var isclicknewchat=0;
+var isSummary=0;
 
 //选择模型***********************************
 MODEL1.addEventListener('input',()=>{
@@ -711,86 +712,152 @@ document.getElementById('back').addEventListener('click',()=>{
 
 //将历史对话发送给服务器***********************************
 function saveDialogue(){
+    //大于200字符时总结对话主题
+    var APIkey="";
+    async function getAPIkey() {
+        try {
+            const response = await fetch('get-info');
+            const data = await response.json();
+            return data.APIkey;
+        } catch (error) {
+            console.log(error);
+            return null;
+        }
+    }
+    async function apikey() {
+        APIkey = await getAPIkey();
+    }
+    async function sendRequest(){
+        await apikey();
+        if(interaction.innerText.length>200&&(!isSummary)){
+            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过十个字"});
+            async function summaryDialogue(){
+                try{
+                    const response = await fetch("https://api.openai.com/v1/chat/completions",{
+                        method:'POST',
+                        headers:{
+                            'Content-Type':'application/json',
+                            'Authorization':'Bearer '+APIkey,
+                        },
+                        body:JSON.stringify({
+                            "model": model,
+                            "messages": historical_dialogue,
+                            "temperature": temperature/10,
+                        })
+                    })
+                    const data=await response.json();
+                    var title=data.choices[0].message.content;
+                    const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
+                    selectedOption.textContent=title;
+                    lielement.innerText=title;
+                    historical_dialogue.pop();
+                    isSummary=1;
+                }catch(error){
+                    console.error('Request error:', error);
+                }
+            }
+            summaryDialogue();
+        }
+    }
+    sendRequest();
     //DialogueID***************************
-    fetch("/getDialogueID",{
-        method:'POST',
-        body:dialogue_id,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function fetchDialogueID(){
+        fetch("/getDialogueID",{
+            method:'POST',
+            body:dialogue_id,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
     //replyID***************************
-    fetch("/getreplyID",{
-        method:'POST',
-        body:replyID,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function fetchreplyID(){
+        fetch("/getreplyID",{
+            method:'POST',
+            body:replyID,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
     //spinner_cnt***************************
-    fetch("/getspinner_cnt",{
-        method:'POST',
-        body:spinner_cnt,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function fetchspinner_cnt(){
+        fetch("/getspinner_cnt",{
+            method:'POST',
+            body:spinner_cnt,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
     //对话HTML***************************
-    fetch("/getDialogueHTML",{
-        method:'POST',
-        body:JSON.stringify(interaction.innerHTML),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function fetchDialogueHTML(){
+        fetch("/getDialogueHTML",{
+            method:'POST',
+            body:JSON.stringify(interaction.innerHTML),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
     //orgid***************************
-    fetch("/getorgid",{
-        method:'POST',
-        body:orgid,
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function fetchorgID(){
+        fetch("/getorgid",{
+            method:'POST',
+            body:orgid,
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
     //保存对话
-    fetch("/saveDialogue",{
-        method:'POST',
-        body:JSON.stringify(historical_dialogue),
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Request failed with status: ${response.status}`);
-        }else{
-            console.log("保存对话成功！");
-        }
-    })
-    .catch(error => {
-        console.error('Request error:', error);
-    });
+    async function SaveDialogue(){
+        await fetchDialogueID();
+        await fetchreplyID();
+        await fetchspinner_cnt();
+        await fetchDialogueHTML();
+        await fetchorgID();
+        fetch("/saveDialogue",{
+            method:'POST',
+            body:JSON.stringify(historical_dialogue),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Request failed with status: ${response.status}`);
+            }else{
+                console.log("保存对话成功！");
+            }
+        })
+        .catch(error => {
+            console.error('Request error:', error);
+        });
+    }
+    SaveDialogue();
 }
 
 //加载历史对话***********************************
@@ -821,6 +888,7 @@ async function loadDialogue(selectedIndex,orgid){
         spinner_cnt=data.spinner_cnt;
         interaction.innerHTML=data.dialogueHTML;
         historical_dialogue=JSON.parse(data.dialogue);
+        isSummary=0;
         document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
     } catch (error) {
         console.log(error);
@@ -856,6 +924,7 @@ conversationOptions.addEventListener('click', async function(event) {
             historical_reply=[];
             replyID=0;
             spinner_cnt=0;
+            isSummary=0;
             interaction.innerHTML='';
             document.getElementById("query").value='';
             const newLiElement = document.createElement('li');//创建新的一行对话
@@ -885,7 +954,8 @@ async function getorgID(){
 async function getDialogueID(){
     try {
         const response = await fetch('sendDialogueID',{
-            method:'POST'
+            method:'POST',
+            body:orgid,
         });
         const data = await response.json();
         console.log(data);

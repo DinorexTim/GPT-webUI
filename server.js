@@ -235,22 +235,29 @@ app.post('/getorgid',(req,res)=>{
 });
 //发送对话ID********************************
 app.post('/sendDialogueID',(req,res)=>{
-  sql_id="SELECT id FROM `dialogue` "+`WHERE orgid=${JSON.stringify(orgid)}`+" ORDER BY id DESC LIMIT 1";
-  connectInfo.query(sql_id,(err,result,fields)=>{
-    if(err){
-      console.log('[SELECT ERROR] - ',err.message);
-      res.status(500).json({"id":-1,"status":"fail"});
-      return;
-    }
-    if(result.length>0){
-      dialogue_id=result[0].id;
-      console.log("数据库id最大值为: ",dialogue_id);
-      res.json({ id: dialogue_id});
-    } else {
-      console.log("数据库id最大值为: ",-1);
-      res.json({ id: -1 }); 
-    }
-  }); 
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    orgid=Buffer.concat(body).toString();
+    body=[];    
+    sql_id="SELECT id FROM `dialogue` "+`WHERE orgid=${JSON.stringify(orgid)}`+" ORDER BY id DESC LIMIT 1";
+    connectInfo.query(sql_id,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        res.status(500).json({"id":-2,"status":"fail"});
+        return;
+      }
+      if(result.length>0){
+        dialogue_id=result[0].id;
+        console.log("数据库id最大值为: ",dialogue_id);
+        res.json({ id: dialogue_id});
+      } else {
+        console.log("数据库id最大值为: ",-1);
+        res.json({ id: -1 }); 
+      }
+    }); 
+  });
 });
 //存储历史对话********************************
 app.post('/saveDialogue',(req,res)=>{
