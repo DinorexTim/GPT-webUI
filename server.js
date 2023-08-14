@@ -170,10 +170,10 @@ app.post('/getDialogueID' , (req , res)=>{
     dialogue_id=body;
     console.log("dialogue_id: ",dialogue_id);
     body=[];
+    res.json({
+      status:'success'
+    });
   })
-  res.json({
-    status:'success'
-  });
 })
 //获取replyID********************************
 app.post('/getreplyID',(req,res)=>{
@@ -186,10 +186,10 @@ app.post('/getreplyID',(req,res)=>{
     replyID=body;
     console.log("replyID: ",replyID);
     body=[];
+    res.json({
+      status:'success'
+    });
   })
-  res.json({
-    status:'success'
-  });
 });
 //获取spinner_cnt********************************
 app.post('/getspinner_cnt',(req,res)=>{
@@ -202,10 +202,10 @@ app.post('/getspinner_cnt',(req,res)=>{
     spinner_cnt=body;
     console.log("spinner_cnt: ",spinner_cnt);
     body=[];
+    res.json({
+      status:'success'
+    });
   })
-  res.json({
-    status:'success'
-  });
 });
 //获取dialogueHTML********************************
 app.post('/getDialogueHTML',(req,res)=>{
@@ -215,9 +215,9 @@ app.post('/getDialogueHTML',(req,res)=>{
   req.on('end',()=>{
     dialogueHTML=Buffer.concat(body).toString();
     body=[];    
-  });
-  res.json({
-    status:'success'
+    res.json({
+      status:'success'
+    });
   });
 });
 //获取orgid
@@ -227,10 +227,10 @@ app.post('/getorgid',(req,res)=>{
   });
   req.on('end',()=>{
     orgid=Buffer.concat(body).toString();
-    body=[];    
-  });
-  res.json({
-    status:'success'
+    body=[];   
+    res.json({
+      status:'success'
+    }); 
   });
 });
 //发送对话ID********************************
@@ -291,10 +291,10 @@ app.post('/saveDialogue',(req,res)=>{
       }
       console.log("存储对话成功！");
     });
-  });
-  dialogue=[];
-  res.json({
-    status:'success'
+    dialogue=[];
+    res.json({
+      status:'success'
+    });
   });
 });
 //TODO:加载历史对话********************************
@@ -330,9 +330,9 @@ app.get('/delete-session',(req,res)=>{
     if (err) {
       console.error('Error destroying session:', err);
     }
-  });
-  res.json({
-    status:'success'
+    res.json({
+      status:'success'
+    });
   });
 });
 var server=app.listen(port,()=>{});
