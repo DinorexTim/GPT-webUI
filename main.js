@@ -752,6 +752,7 @@ async function saveDialogue(){
                     lielement.innerText=title;
                     historical_dialogue.pop();
                     isSummary=1;
+                    sendDialogueOptions();
                 }catch(error){
                     console.error('Request error:', error);
                 }
