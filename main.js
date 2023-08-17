@@ -711,7 +711,7 @@ document.getElementById('back').addEventListener('click',()=>{
 });
 
 //将历史对话发送给服务器***********************************
-function saveDialogue(){
+async function saveDialogue(){
     //大于200字符时总结对话主题
     var APIkey="";
     async function getAPIkey() {
@@ -759,7 +759,7 @@ function saveDialogue(){
             summaryDialogue();
         }
     }
-    sendRequest();
+    await sendRequest();
     //DialogueID***************************
     async function fetchDialogueID(){
         fetch("/getDialogueID",{
@@ -903,7 +903,7 @@ selectedOption.addEventListener('mouseover', function() {
 });
 
 //隐藏历史对话***********************************
-mainbox.addEventListener('mouseleave',()=>{
+mainbox.addEventListener('click',()=>{
     conversationOptions.classList.remove('active');
 });
 
@@ -916,6 +916,7 @@ conversationOptions.addEventListener('click', async function(event) {
             conversationOptions.classList.remove('active');
             // 加载对话
             loadDialogue(selectedIndex,orgid);
+            sendDialogueOptions();
         }
         //创建新对话
         if(selectedIndex==-1&&interaction.innerHTML.length>5){
@@ -934,6 +935,7 @@ conversationOptions.addEventListener('click', async function(event) {
             selectedOption.textContent = newLiElement.textContent;
             conversationOptions.appendChild(newLiElement);
             conversationOptions.classList.remove('active');
+            sendDialogueOptions();
         }
     }
 });
@@ -966,5 +968,36 @@ async function getDialogueID(){
     }
 }
 
+//发送历史对话选择选项***********************************
+async function sendDialogueOptions(){
+    try {
+        const response=await fetch('/getDialogueOptions',{
+            method:'POST',
+            body:conversationOptions.innerHTML
+        });
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
+
+//获取对话选项
+async function getDialogueOptions(){
+    try{
+        const response=await fetch('/sendDialogueOptions',{
+            method:'POST'
+        });
+        const data = await response.json();
+        conversationOptions.innerHTML=data.HTML;
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
 getorgID();
 interaction.innerHTML='';
+
+//刷新界面保存历史对话选项
+window.onload=()=>{
+    getDialogueOptions();
+}

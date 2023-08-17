@@ -30,6 +30,7 @@ var dialogue_id=0;
 var audiodata=[];//bug**********************
 var replyID=0;
 var spinner_cnt=0;
+var DialogueOptionsHTML=`<li class="select-option" data-value="-1">New chat</li>`;
 /*********************创建服务器**********************/
 http.createServer((request,response)=>{
     response.writeHead(200,{'Content-Type':'text/plain'});
@@ -297,7 +298,7 @@ app.post('/saveDialogue',(req,res)=>{
     });
   });
 });
-//TODO:加载历史对话********************************
+//加载历史对话********************************
 app.post('/loadDialogue',(req,res)=>{
   console.log("加载对话中...");
   var data;
@@ -314,15 +315,35 @@ app.post('/loadDialogue',(req,res)=>{
         console.log('[SELECT ERROR] - ',err.message);
         return;
       }
-      data={
-        "replyID":result[0].replyID,
-        "spinner_cnt":result[0].spinner_cnt,
-        "dialogueHTML":result[0].html,
-        "dialogue":result[0].conversation,
+      data={};
+      if(result.length!=0){
+        data={
+          "replyID":result[0].replyID,
+          "spinner_cnt":result[0].spinner_cnt,
+          "dialogueHTML":result[0].html,
+          "dialogue":result[0].conversation,
+        }
       }
       res.json(data);
     });
     body=[];
+  })
+});
+//接收对话选项********************************
+app.post('/getDialogueOptions',(req,res)=>{
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    DialogueOptionsHTML=Buffer.concat(body).toString();
+  });
+  res.json({"status":"success"});
+});
+//发送对话选项********************************
+app.post('/sendDialogueOptions',(req,res)=>{
+  res.json({
+    "HTML":DialogueOptionsHTML
   })
 });
 app.get('/delete-session',(req,res)=>{

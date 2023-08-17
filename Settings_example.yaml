@@ -1,12 +1,13 @@
+# 数据库配置
 mysql:
  host: 'localhost'
  port: 3306
  user: 'root'
- password: '114514'
+ password: '114514' #修改为你数据库的密码
  database: 'client'
 
-# 服务器配置(必填)
+# 服务器配置
 server:
  host: "localhost"
  port: 1145
- location: "https://example.com"  #本机访问改成"http://loaclhost:1145"
+ location: "http://localhost:1145" 

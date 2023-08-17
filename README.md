@@ -22,9 +22,10 @@ npm install express querystring body-parser mysql2 js-yaml express-session
 ```
 git clone https://github.com/DINOREXNB/GPT_Web.git
 ```
+- 执行`GPT_Web_init.sql`创建`client`数据库用于存储历史对话
 - 进入工作区后，将`Settings_example.yaml`重命名为`Settings.yaml`，编辑配置文件
 ```
-# 数据库配置信息(选填，存储历史对话用)
+# 数据库配置信息(存储历史对话用)
 mysql:
  host: 'localhost'
  port: 3306
@@ -36,7 +37,7 @@ mysql:
 server:
  host: "localhost"
  port: 1145
- location: "https://example.com"  #本机访问改成"http://loaclhost:1145"
+ location: "http://localhost:1145"
 ```
 - 启动服务器
 ```
