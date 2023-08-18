@@ -27,10 +27,14 @@ var dialogueHTML=[];//临时存储html
 var User=new Map();//存储用户组织ID与APIkey
 var orgid='';//临时存储orgid
 var dialogue_id=0; 
+var CurrentDialogueID=0;
 var audiodata=[];//bug**********************
 var replyID=0;
 var spinner_cnt=0;
 var DialogueOptionsHTML=`<li class="select-option" data-value="-1">New chat</li>`;
+var New_Summary={
+  "isClickNewchat":0
+};
 /*********************创建服务器**********************/
 http.createServer((request,response)=>{
     response.writeHead(200,{'Content-Type':'text/plain'});
@@ -270,6 +274,7 @@ app.post('/saveDialogue',(req,res)=>{
     dialogue=Buffer.concat(dialogue).toString();
     console.log(JSON.parse(dialogue));
     dialogue=JSON.stringify(dialogue);
+    CurrentDialogueID=dialogue_id;
     sql_delete="DELETE FROM `dialogue` "+`where id=${dialogue_id} and orgid=${JSON.stringify(orgid)}`;
     sql_insert="INSERT INTO `dialogue` VALUES "+`(
       ${dialogue_id},
@@ -317,6 +322,7 @@ app.post('/loadDialogue',(req,res)=>{
       }
       data={};
       if(result.length!=0){
+        CurrentDialogueID=result[0].id;
         data={
           "replyID":result[0].replyID,
           "spinner_cnt":result[0].spinner_cnt,
@@ -346,6 +352,35 @@ app.post('/sendDialogueOptions',(req,res)=>{
     "HTML":DialogueOptionsHTML
   })
 });
+//获取isSummary_isClickNewchat********************************
+app.post('/getNewSummary',(req,res)=>{
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    body=Buffer.concat(body).toString();
+    New_Summary=JSON.parse(body);
+    console.log("New_summary is :",New_Summary);
+  });
+  res.json({"status":"success"});
+});
+//发送isSummary_isClickNewchat********************************
+app.post('/sendNewSummary',(req,res)=>{
+  console.log("New_summary to send is :",New_Summary);
+  res.json({
+    "isClickNewChat":New_Summary.isClickNewchat
+  });
+});
+
+//发送刷新前的dialogueID********************************
+app.post('/sendCurrentDialogueID',(req,res)=>{
+  console.log("刷新前对话ID为 ",CurrentDialogueID);
+  res.json({
+    "CurrentDialogueID":parseInt(CurrentDialogueID)
+  });
+});
+//删除session********************************
 app.get('/delete-session',(req,res)=>{
   req.session.destroy(err => {
     if (err) {

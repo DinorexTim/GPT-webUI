@@ -31,7 +31,6 @@ var orgid='';
 var dialogue_id=0;
 var isclick=0;
 var isclicknewchat=0;
-var isSummary=0;
 
 //选择模型***********************************
 MODEL1.addEventListener('input',()=>{
@@ -60,14 +59,6 @@ SIZE3.addEventListener("click",()=>{
     size="1024x1024";
     console.log("image size:1024x1024");
 });
-
-//TODO:利用session加载偏好设置***********************************   
-
-
-
-
-
-
 
 //选择图像数量***********************************
 NUMofIMAGES.addEventListener("input",()=>{
@@ -334,6 +325,7 @@ texttoimage.addEventListener('click',()=>{
                         `;
                         interaction.scrollTop=interaction.scrollHeight;
                     }
+                    saveDialogue();
                 }else{
                     document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
                     interaction.innerHTML=interaction.innerHTML+`
@@ -364,7 +356,6 @@ texttoimage.addEventListener('click',()=>{
 //重新生成回复***********************************
 function resendrequest(){      
     console.log("Regenerating...");
-    var orgid="";
     var APIkey="";
     async function getAPIkey() {
         try {
@@ -530,6 +521,7 @@ function sendrequest(){
                 selectedOption.textContent=newLiElement.textContent;
                 conversationOptions.classList.remove('active');
                 isclicknewchat=1;
+                sendNew_Summary();
             }
             interaction.innerHTML=interaction.innerHTML+`
                 <div class="content">
@@ -729,8 +721,8 @@ async function saveDialogue(){
     }
     async function sendRequest(){
         await apikey();
-        if(interaction.innerText.length>200&&(!isSummary)){
-            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过十个字"});
+        if(interaction.innerText.length>300&&(!isSummary)){
+            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过八个字"});
             async function summaryDialogue(){
                 try{
                     const response = await fetch("https://api.openai.com/v1/chat/completions",{
@@ -753,6 +745,7 @@ async function saveDialogue(){
                     historical_dialogue.pop();
                     isSummary=1;
                     sendDialogueOptions();
+                    sendNew_Summary();
                 }catch(error){
                     console.error('Request error:', error);
                 }
@@ -851,6 +844,7 @@ async function saveDialogue(){
             if (!response.ok) {
                 throw new Error(`Request failed with status: ${response.status}`);
             }else{
+                sendDialogueOptions();
                 console.log("保存对话成功！");
             }
         })
@@ -863,7 +857,7 @@ async function saveDialogue(){
 
 //加载历史对话***********************************
 async function loadDialogue(selectedIndex,orgid){
-    dialogue_id=selectedIndex;
+    dialogue_id=parseInt(selectedIndex);
     fetch("/getorgid",{
         method:'POST',
         body:orgid,
@@ -887,7 +881,10 @@ async function loadDialogue(selectedIndex,orgid){
         //加载replyID,spinner_cnt
         replyID=data.replyID;
         spinner_cnt=data.spinner_cnt;
-        interaction.innerHTML=data.dialogueHTML;
+        if(data.dialogueHTML!='undefined'&&data.dialogueHTML!=undefined){
+            interaction.innerHTML=data.dialogueHTML;
+            interaction.scrollTop=interaction.scrollHeight;
+        }
         historical_dialogue=JSON.parse(data.dialogue);
         isSummary=0;
         document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
@@ -918,15 +915,15 @@ conversationOptions.addEventListener('click', async function(event) {
             // 加载对话
             loadDialogue(selectedIndex,orgid);
             sendDialogueOptions();
+            sendNew_Summary();
         }
         //创建新对话
-        if(selectedIndex==-1&&interaction.innerHTML.length>5){
+        if(selectedIndex==-1&&interaction.innerHTML.length>10){
             await getDialogueID();
             historical_dialogue=[];    
             historical_reply=[];
             replyID=0;
             spinner_cnt=0;
-            isSummary=0;
             interaction.innerHTML='';
             document.getElementById("query").value='';
             const newLiElement = document.createElement('li');//创建新的一行对话
@@ -936,7 +933,9 @@ conversationOptions.addEventListener('click', async function(event) {
             selectedOption.textContent = newLiElement.textContent;
             conversationOptions.appendChild(newLiElement);
             conversationOptions.classList.remove('active');
+            saveDialogue();
             sendDialogueOptions();
+            sendNew_Summary();
         }
     }
 });
@@ -982,7 +981,7 @@ async function sendDialogueOptions(){
     }
 }
 
-//获取对话选项
+//获取对话选项***********************************
 async function getDialogueOptions(){
     try{
         const response=await fetch('/sendDialogueOptions',{
@@ -990,15 +989,63 @@ async function getDialogueOptions(){
         });
         const data = await response.json();
         conversationOptions.innerHTML=data.HTML;
+        const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
+        selectedOption.textContent=lielement.innerText;
     }catch(error){
         console.log(error);
         return null;
     }
 }
-getorgID();
-interaction.innerHTML='';
 
-//刷新界面保存历史对话选项
-window.onload=()=>{
-    getDialogueOptions();
+//发送isClicknewChat***********************************
+async function sendNew_Summary(){
+    try{
+        const response=await fetch('/getNewSummary',{
+            method:'POST',
+            body:JSON.stringify({
+                "isClickNewchat":isclicknewchat
+            })
+        });
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
+
+//获取isClicknewChat***********************************
+async function getNew_Summary(){
+    try{
+        const response=await fetch('/sendNewSummary',{
+            method:'POST'
+        });
+        const data = await response.json();
+        isclicknewchat=data.isClickNewChat;
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
+
+//获取目前对话的ID***********************************
+async function getCurrentDialogueID(){
+    try{
+        const response=await fetch('/sendCurrentDialogueID',{
+            method:'POST'
+        });
+        const data = await response.json();
+        dialogue_id=data.CurrentDialogueID;
+    }catch(error){
+        console.log(error);
+        return null;
+    }
+}
+
+//刷新界面保存历史对话选项***********************************
+window.onload=async ()=>{
+    interaction.innerHTML='';
+    await getorgID();
+    await getNew_Summary();
+    await getCurrentDialogueID();
+    await getDialogueOptions();
+    loadDialogue(dialogue_id,orgid);
 }
