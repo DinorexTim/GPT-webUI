@@ -528,7 +528,7 @@ function sendrequest(){
                 <div class="content">
                 <h3>You:</h3>
                 <div class="ReplyContentUser">
-                <p>${document.getElementById("query").value.replace(/\n/g, "<br>").replace(/\t/g, "\\t")}</p>
+                <p>${document.getElementById("query").value.replace(/\n/g, "<br>").replace(/\t/g, "    ")}</p>
                 </div>
                 </div>
                 <div id="spinner${spinner_cnt}">
@@ -662,17 +662,17 @@ function sendrequest(){
 }
 
 //使用回车发送内容生成回复***********************************
-function sendrequestKey(){
-    if(event.code=='Enter'){
-        sendrequest();
-    }
-}
+// function sendrequestKey(){
+//     if(event.code=='Enter'){
+//         sendrequest();
+//     }
+// }
 
 //发送聊天请求***********************************
 btn.addEventListener("click",sendrequest);
 
 //回车发送内容***********************************
-document.addEventListener("keydown",sendrequestKey);
+// document.addEventListener("keydown",sendrequestKey);
 
 //复制对话内容***********************************
 function copyContent(id){

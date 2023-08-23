@@ -91,6 +91,30 @@ app.get('/main.js',(req,res)=>{
     res.end(data)
   });
 });
+app.get('/css/Main.css',(req,res)=>{
+  fs.readFile("./css/Main.css",(err,data)=>{
+    if(err){
+      console.log("加载Main.css失败！");
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"text/css"
+    });
+    res.end(data)
+  });
+});
+app.get('/css/Index.css',(req,res)=>{
+  fs.readFile("./css/Index.css",(err,data)=>{
+    if(err){
+      console.log("加载Index.css失败！");
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"text/css"
+    });
+    res.end(data)
+  });
+});
 app.get('/images/audiototext.png' , (req , res)=>{
   fs.readFile("./images/audiototext.png",(err,data)=>{
     if(err){

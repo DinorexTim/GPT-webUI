@@ -1,0 +1,208 @@
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  margin: 0;
+  padding: 0;
+}
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+.mainbox {
+  background-color: #fff;
+  border-radius: 20px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-right: 12.5%;
+  margin-left: 6%;
+  width: 75%;
+  height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+.mainbox h2 {
+  margin-top: 0;
+  font-size: 24px;
+  text-align: center;
+}
+.mainbox h6 {
+  margin-top: 0;
+  text-align: right;
+}
+.mainbox textarea {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  height: 50px;
+}
+.mainbox button{
+  background-color: #333;
+  color: #fff;
+  border: 0;
+  border-radius: 20px;
+  cursor: pointer;
+  padding: 10px;
+  width: 80px;
+  height: 100%;
+  float: right;
+  margin: 3px;
+}
+.mainbox button:hover{
+    transition-duration: 0.3s;
+    background-color: #45a049;
+}
+.back{
+  background-color: #333;
+  color: #fff;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+  width: 40px;
+  height: 30px;
+  float: right;
+  margin: 5px;
+  float: left;
+  font-size: large;
+}
+.back:hover{
+  transition-duration: 0.3s;
+  background-color: #45a049;
+}
+.interaction{
+  border: 2px solid black;
+  height: 70%;
+  overflow-y: scroll;
+  margin-bottom: 8px;
+  border-radius: 10px;
+}
+.interaction button{
+  height: 5%;
+  width: 85px;
+  padding-bottom: 10px;
+  margin-bottom: 5px;
+  height: 100%;
+  float: right;
+}
+.content{
+  padding-left: 10px;
+}
+.ReplyContent{
+  border:1px solid black;
+  border-radius: 10px;
+  word-break: break-all;
+  padding-left: 5px;
+  overflow-x: auto;
+  margin-right: 5px;
+}
+.ReplyContentUser{
+  border:1px solid black;
+  border-radius: 10px;
+  word-break: break-all;
+  padding-left: 5px;
+  overflow-x: auto;
+  margin-right: 5px;
+  white-space: pre;
+}
+.publicbar{
+  display: inline-block;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+}
+.options {
+  display: flex;
+  align-items: center;
+  padding: 10px;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  margin: 20px;
+  border-radius: 20px;
+} 
+.audiototext{
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  margin: 2px;
+}
+.texttoimage{
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  margin: 2px;
+}
+.prompt{
+  height: 40px;
+  width: 40px;
+  cursor: pointer;
+  border-radius: 50%;
+  margin: 2px;
+}
+.spinner {
+  /* Size */
+  height: 15px;
+  width: 15px;
+  margin: auto;
+  margin-top: 15px;
+  /* Create a curve at the top */
+  border: 4px solid #d1d5db;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spinner 800ms linear infinite;
+}
+@keyframes spinner {
+    from{
+      transform: rotate(0deg);
+    }
+    to{
+      transform: rotate(360deg);
+    }
+}
+.custom-select {
+  margin-bottom: 10px;
+  display: inline-block;
+  width: 200px;
+}
+.custom-select select {
+  display: none;
+}
+.select-styled {
+  display: block;
+  padding: 4px 10px;
+  border: 2px solid black;
+  border-radius: 6px;
+  background-color: #ffffff;
+  color: #24292e;
+  cursor: pointer;
+  height: 20px;
+  overflow-y: scroll;
+}
+.octicon {
+  vertical-align: middle;
+  margin-left: 5px;
+}
+.select-options {
+  position: absolute;
+  display: none;
+  background-color: #fff;
+  border: 2px solid #000000;
+  border-top: none;
+  border-radius: 0 0 15px 0;
+  width: 25%;
+  overflow-y: scroll;
+  height: 250px;
+}
+.select-options.active {
+  display: block;
+}
+.select-option {
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.select-option:hover {
+  background-color: #f1f8ff;
+}
