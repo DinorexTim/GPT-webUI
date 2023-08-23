@@ -31,6 +31,7 @@ var orgid='';
 var dialogue_id=0;
 var isclick=0;
 var isclicknewchat=0;
+var isSummary=0;
 
 //选择模型***********************************
 MODEL1.addEventListener('input',()=>{
@@ -526,8 +527,8 @@ function sendrequest(){
             interaction.innerHTML=interaction.innerHTML+`
                 <div class="content">
                 <h3>You:</h3>
-                <div class="ReplyContent">
-                <p>${document.getElementById("query").value}</p>
+                <div class="ReplyContentUser">
+                <p>${document.getElementById("query").value.replace(/\n/g, "<br>").replace(/\t/g, "\\t")}</p>
                 </div>
                 </div>
                 <div id="spinner${spinner_cnt}">
