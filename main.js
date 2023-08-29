@@ -22,7 +22,6 @@ var isContextLinkage=1;
 var temperature=5;
 var historical_dialogue=[];
 var replyID=0;
-var spinner_cnt=0;
 var max_dialogue_record=14;
 var size="256x256";
 var numofimages=1;
@@ -107,7 +106,7 @@ setprompt.addEventListener('click',()=>{
             document.getElementById(`regenerate${replyID-1}`).innerHTML='';
         }
         interaction.innerHTML=interaction.innerHTML+`
-            <div id="spinner${spinner_cnt}">
+            <div id="spinner">
             <div class="spinner"></div>
             </div>
         `;
@@ -128,7 +127,8 @@ setprompt.addEventListener('click',()=>{
             if (xhr.status === 200) {
                 let Response=JSON.parse(xhr.responseText);
                 console.log(xhr.responseText);
-                document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                document.getElementById(`spinner`).innerHTML='';
+                document.getElementById(`spinner`).remove();
                 interaction.innerHTML=interaction.innerHTML+`
                     <div class="content" id="replyprompt">
                     <h3>PUA:</h3>
@@ -161,7 +161,8 @@ setprompt.addEventListener('click',()=>{
                 saveDialogue();
                 console.log(historical_reply);
             }else{
-                document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                document.getElementById(`spinner`).innerHTML='';
+                document.getElementById(`spinner`).remove();
                 interaction.innerHTML=interaction.innerHTML+`
                     <div class="content">
                     <h3>PUA:</h3>
@@ -172,7 +173,6 @@ setprompt.addEventListener('click',()=>{
                 `;
                 console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
             }
-            spinner_cnt++;
         };
         if(isContextLinkage){
             const data = {
@@ -290,7 +290,7 @@ texttoimage.addEventListener('click',()=>{
                 <p>${document.getElementById("query").value}</p>
                 </div>
                 </div>
-                <div id="spinner${spinner_cnt}">
+                <div id="spinner">
                 <div class="spinner"></div>
                 </div>
             `;
@@ -312,7 +312,8 @@ texttoimage.addEventListener('click',()=>{
                     let Response=JSON.parse(xhr.responseText);
                     console.log(Response);
                     //增添回复
-                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    document.getElementById(`spinner`).innerHTML='';
+                    document.getElementById(`spinner`).remove();
                     interaction.innerHTML=interaction.innerHTML+`
                         <div class="content">
                             <h3>PUA:</h3>
@@ -328,7 +329,8 @@ texttoimage.addEventListener('click',()=>{
                     }
                     saveDialogue();
                 }else{
-                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    document.getElementById(`spinner`).innerHTML='';
+                    document.getElementById(`spinner`).remove();
                     interaction.innerHTML=interaction.innerHTML+`
                         <div class="content">
                         <h3>PUA:</h3>
@@ -340,7 +342,6 @@ texttoimage.addEventListener('click',()=>{
                     interaction.scrollTop=interaction.scrollHeight;
                     console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
                 }
-                spinner_cnt++;
             };
             const data = {
                 "prompt": query,
@@ -377,7 +378,7 @@ function resendrequest(){
         document.getElementById(`reply${replyID-1}`).innerHTML='';
     }
     interaction.innerHTML=interaction.innerHTML+`
-        <div id="spinner${spinner_cnt}">
+        <div id="spinner">
         <div class="spinner"></div>
         </div>
     `;
@@ -402,7 +403,8 @@ function resendrequest(){
             }
             //增添回复
             var htmltext=marked(Response.choices[0].message.content);
-            document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+            document.getElementById(`spinner`).innerHTML='';
+            document.getElementById(`spinner`).remove();
             interaction.innerHTML=interaction.innerHTML+`
             <div class="content" id="reply${replyID}">
                 <h3>PUA:</h3>
@@ -437,7 +439,8 @@ function resendrequest(){
             replyID++;
         }else{
             var text=`❌请求失败，状态码：${xhr.status}`;
-            document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+            document.getElementById(`spinner`).innerHTML='';
+            document.getElementById(`spinner`).remove();
             interaction.innerHTML=interaction.innerHTML+`
                 <div class="content" id=reply${replyID}>
                     <h3>PUA:</h3>
@@ -464,7 +467,6 @@ function resendrequest(){
             replyID++;
             console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
         }
-        spinner_cnt++;
     };
     if(isContextLinkage){
         const data = {
@@ -513,7 +515,6 @@ function sendrequest(){
                 historical_dialogue=[];    
                 historical_reply=[];
                 replyID=0;
-                spinner_cnt=0;
                 const newLiElement = document.createElement('li');//创建新的一行对话
                 newLiElement.classList.add('select-option');
                 newLiElement.setAttribute('data-value',`${dialogue_id}`);
@@ -531,7 +532,7 @@ function sendrequest(){
                 <p>${document.getElementById("query").value.replace(/\n/g, "<br>").replace(/\t/g, "    ")}</p>
                 </div>
                 </div>
-                <div id="spinner${spinner_cnt}">
+                <div id="spinner">
                 <div class="spinner"></div>
                 </div>
             `;
@@ -575,7 +576,8 @@ function sendrequest(){
                     }
                     //增添回复
                     var htmltext=marked(Response.choices[0].message.content);
-                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    document.getElementById(`spinner`).innerHTML='';
+                    document.getElementById(`spinner`).remove();
                     interaction.innerHTML=interaction.innerHTML+`
                     <div class="content" id="reply${replyID}">
                     <h3>PUA:</h3>
@@ -610,7 +612,8 @@ function sendrequest(){
                     replyID++;
                 }else{
                     var text=`❌请求失败，状态码：${xhr.status}`;
-                    document.getElementById(`spinner${spinner_cnt}`).innerHTML='';
+                    document.getElementById(`spinner}`).innerHTML='';
+                    document.getElementById(`spinner`).remove();
                     interaction.innerHTML=interaction.innerHTML+`
                         <div class="content" id=reply${replyID}>
                         <h3>PUA:</h3>
@@ -637,7 +640,6 @@ function sendrequest(){
                     replyID++;
                     console.error('请求失败，状态码：' + xhr.status + '，错误信息：' + xhr.statusText);
                 }
-                spinner_cnt++;
             };
             if(isContextLinkage){
             const data = {
@@ -662,17 +664,17 @@ function sendrequest(){
 }
 
 //使用回车发送内容生成回复***********************************
-// function sendrequestKey(){
-//     if(event.code=='Enter'){
-//         sendrequest();
-//     }
-// }
+function sendrequestKey(){
+    if(event.code=='Enter'){
+        sendrequest();
+    }
+}
 
 //发送聊天请求***********************************
 btn.addEventListener("click",sendrequest);
 
 //回车发送内容***********************************
-// document.addEventListener("keydown",sendrequestKey);
+document.addEventListener("keydown",sendrequestKey);
 
 //复制对话内容***********************************
 function copyContent(id){
@@ -705,7 +707,7 @@ document.getElementById('back').addEventListener('click',()=>{
 
 //将历史对话发送给服务器***********************************
 async function saveDialogue(){
-    //大于200字符时总结对话主题
+    //大于300字符时总结对话主题
     var APIkey="";
     async function getAPIkey() {
         try {
@@ -723,7 +725,9 @@ async function saveDialogue(){
     async function sendRequest(){
         await apikey();
         if(interaction.innerText.length>300&&(!isSummary)){
-            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过八个字"});
+            isSummary=1;
+            await sendNew_Summary();
+            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过八个字，回复中不要带标点句号"});
             async function summaryDialogue(){
                 try{
                     const response = await fetch("https://api.openai.com/v1/chat/completions",{
@@ -744,17 +748,14 @@ async function saveDialogue(){
                     selectedOption.textContent=title;
                     lielement.innerText=title;
                     historical_dialogue.pop();
-                    isSummary=1;
-                    sendDialogueOptions();
-                    sendNew_Summary();
+                    await sendDialogueOptions();
                 }catch(error){
                     console.error('Request error:', error);
                 }
             }
-            summaryDialogue();
+            await summaryDialogue();
         }
     }
-    await sendRequest();
     //DialogueID***************************
     async function fetchDialogueID(){
         fetch("/getDialogueID",{
@@ -775,21 +776,6 @@ async function saveDialogue(){
         fetch("/getreplyID",{
             method:'POST',
             body:replyID,
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`Request failed with status: ${response.status}`);
-            }
-        })
-        .catch(error => {
-            console.error('Request error:', error);
-        });
-    }
-    //spinner_cnt***************************
-    async function fetchspinner_cnt(){
-        fetch("/getspinner_cnt",{
-            method:'POST',
-            body:spinner_cnt,
         })
         .then(response => {
             if (!response.ok) {
@@ -832,9 +818,9 @@ async function saveDialogue(){
     }
     //保存对话
     async function SaveDialogue(){
+        await sendRequest();
         await fetchDialogueID();
         await fetchreplyID();
-        await fetchspinner_cnt();
         await fetchDialogueHTML();
         await fetchorgID();
         fetch("/saveDialogue",{
@@ -845,7 +831,6 @@ async function saveDialogue(){
             if (!response.ok) {
                 throw new Error(`Request failed with status: ${response.status}`);
             }else{
-                sendDialogueOptions();
                 console.log("保存对话成功！");
             }
         })
@@ -879,9 +864,8 @@ async function loadDialogue(selectedIndex,orgid){
         const data = await response.json();
         console.log("待加载对话:");
         console.log(data);
-        //加载replyID,spinner_cnt
+        //加载replyID
         replyID=data.replyID;
-        spinner_cnt=data.spinner_cnt;
         if(data.dialogueHTML!='undefined'&&data.dialogueHTML!=undefined){
             interaction.innerHTML=data.dialogueHTML;
             interaction.scrollTop=interaction.scrollHeight;
@@ -916,7 +900,7 @@ conversationOptions.addEventListener('click', async function(event) {
             // 加载对话
             loadDialogue(selectedIndex,orgid);
             sendDialogueOptions();
-            sendNew_Summary();
+            await sendNew_Summary();
         }
         //创建新对话
         if(selectedIndex==-1&&interaction.innerHTML.length>10){
@@ -924,7 +908,7 @@ conversationOptions.addEventListener('click', async function(event) {
             historical_dialogue=[];    
             historical_reply=[];
             replyID=0;
-            spinner_cnt=0;
+            isSummary=0;
             interaction.innerHTML='';
             document.getElementById("query").value='';
             const newLiElement = document.createElement('li');//创建新的一行对话
@@ -934,9 +918,9 @@ conversationOptions.addEventListener('click', async function(event) {
             selectedOption.textContent = newLiElement.textContent;
             conversationOptions.appendChild(newLiElement);
             conversationOptions.classList.remove('active');
+            await sendNew_Summary();
             saveDialogue();
             sendDialogueOptions();
-            sendNew_Summary();
         }
     }
 });
@@ -986,7 +970,8 @@ async function sendDialogueOptions(){
 async function getDialogueOptions(){
     try{
         const response=await fetch('/sendDialogueOptions',{
-            method:'POST'
+            method:'POST',
+            body:orgid,
         });
         const data = await response.json();
         conversationOptions.innerHTML=data.HTML;
@@ -1004,7 +989,8 @@ async function sendNew_Summary(){
         const response=await fetch('/getNewSummary',{
             method:'POST',
             body:JSON.stringify({
-                "isClickNewchat":isclicknewchat
+                "isClickNewChat":isclicknewchat,
+                "isSummary":isSummary
             })
         });
     }catch(error){
@@ -1021,6 +1007,7 @@ async function getNew_Summary(){
         });
         const data = await response.json();
         isclicknewchat=data.isClickNewChat;
+        isSummary=data.isSummary;
     }catch(error){
         console.log(error);
         return null;

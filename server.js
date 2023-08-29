@@ -30,10 +30,10 @@ var dialogue_id=0;
 var CurrentDialogueID=0;
 var audiodata=[];//bug**********************
 var replyID=0;
-var spinner_cnt=0;
 var DialogueOptionsHTML=`<li class="select-option" data-value="-1">New chat</li>`;
 var New_Summary={
-  "isClickNewchat":0
+  "isSummary":0,
+  "isClickNewChat":0
 };
 /*********************创建服务器**********************/
 http.createServer((request,response)=>{
@@ -64,6 +64,284 @@ connectInfo.connect((err)=>{
   console.log("MySQL connection succeed!");
 });
 /********************处理请求********************/
+//处理登录请求********************************
+app.post('/process-login',(req,res)=>{
+    req.on("data", (chunk) => {
+      body.push(chunk);
+    });
+    req.on("end",()=>{
+      req.session.sign = true;
+      req.session.name = 'Client';
+      body = Buffer.concat(body).toString();
+      body = querystring.parse(body);
+      User.set(body.orgid,body.APIkey);
+      req.session.orgid=body.orgid;
+      orgid=body.orgid;
+      body=[];
+      res.redirect(`${location}/Main.html`);
+    })
+});
+//请求获取APIkey********************************
+app.get('/get-info',(req,res)=>{
+  if (req.session.sign){
+    res.json({"orgid":req.session.orgid,"APIkey":User.get(req.session.orgid)});
+  }else{
+    res.json({"orgid":orgid,"APIkey":User.get(orgid)});
+  }
+})
+//获取此时的对话ID********************************
+app.post('/getDialogueID' , (req , res)=>{
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  })
+  req.on('end',()=>{
+    body = Buffer.concat(body).toString();
+    body=parseInt(body);
+    dialogue_id=body;
+    console.log("dialogue_id: ",dialogue_id);
+    body=[];
+    res.json({
+      status:'success'
+    });
+  })
+})
+//获取replyID********************************
+app.post('/getreplyID',(req,res)=>{
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  })
+  req.on('end',()=>{
+    body = Buffer.concat(body).toString();
+    body=parseInt(body);
+    replyID=body;
+    console.log("replyID: ",replyID);
+    body=[];
+    res.json({
+      status:'success'
+    });
+  })
+});
+//获取dialogueHTML********************************
+app.post('/getDialogueHTML',(req,res)=>{
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    dialogueHTML=Buffer.concat(body).toString();
+    body=[];    
+    res.json({
+      status:'success'
+    });
+  });
+});
+//获取orgid
+app.post('/getorgid',(req,res)=>{
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    orgid=Buffer.concat(body).toString();
+    body=[];   
+    res.json({
+      status:'success'
+    }); 
+  });
+});
+//发送对话ID********************************
+app.post('/sendDialogueID',(req,res)=>{
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    orgid=Buffer.concat(body).toString();
+    body=[];    
+    sql_id="SELECT id FROM `dialogue` "+`WHERE orgid=${JSON.stringify(orgid)}`+" ORDER BY id DESC LIMIT 1";
+    connectInfo.query(sql_id,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        res.status(500).json({"id":-2,"status":"fail"});
+        return;
+      }
+      if(result.length>0){
+        dialogue_id=result[0].id;
+        console.log("数据库id最大值为: ",dialogue_id);
+        res.json({ id: dialogue_id});
+      } else {
+        console.log("数据库id最大值为: ",-1);
+        res.json({ id: -1 }); 
+      }
+    }); 
+  });
+});
+//存储历史对话********************************
+app.post('/saveDialogue',(req,res)=>{
+  console.log("存储对话中...");
+  req.on('data',(chunk)=>{
+    dialogue.push(chunk);
+  });
+  req.on('end',()=>{
+    dialogue=Buffer.concat(dialogue).toString();
+    console.log(JSON.parse(dialogue));
+    dialogue=JSON.stringify(dialogue);
+    CurrentDialogueID=dialogue_id;
+    sql_delete="DELETE FROM `dialogue` "+`where id=${dialogue_id} and orgid=${JSON.stringify(orgid)}`;
+    sql_insert="INSERT INTO `dialogue` VALUES "+`(
+      ${dialogue_id},
+      ${JSON.stringify(orgid)},
+      ${dialogue},
+      ${dialogueHTML},
+      ${replyID},
+      ${New_Summary.isSummary},
+      ${New_Summary.isClickNewChat}
+    )`;
+    connectInfo.query(sql_delete,(err,result,fields)=>{
+      if(err){
+        console.log('[DELETE ERROR] - ',err.message);
+        return;
+      }
+    });
+    connectInfo.query(sql_insert,(err,result,fields)=>{
+      if(err){
+        console.log('[INSERT ERROR] - ',err.message);
+        return;
+      }
+      console.log("存储对话成功！");
+    });
+    dialogue=[];
+    res.json({
+      status:'success'
+    });
+  });
+});
+//加载历史对话********************************
+app.post('/loadDialogue',(req,res)=>{
+  console.log("加载对话中...");
+  var data;
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    body = Buffer.concat(body).toString();
+    body = parseInt(body);
+    console.log("selectedIndex: ",body);
+    sql_load="SELECT * FROM `dialogue` where id"+`=${body} and orgid="${orgid}"`;
+    connectInfo.query(sql_load,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        return;
+      }
+      data={};
+      if(result.length!=0){
+        CurrentDialogueID=result[0].id;
+        data={
+          "replyID":result[0].replyID,
+          "dialogueHTML":result[0].html,
+          "dialogue":result[0].conversation,
+        }
+      }
+      res.json(data);
+    });
+    body=[];
+  })
+});
+//接收并保存对话选项********************************
+app.post('/getDialogueOptions',(req,res)=>{
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    DialogueOptionsHTML=Buffer.concat(body).toString();
+    sql_delete_option="DELETE FROM `user` "+`where orgid=${JSON.stringify(orgid)}`;
+    sql_option="INSERT INTO `user` VALUES "+`(
+      ${JSON.stringify(orgid)},
+      ${JSON.stringify(DialogueOptionsHTML)}
+    )`;
+    connectInfo.query(sql_delete_option,(err,result,fields)=>{
+      if(err){
+        console.log('[DELETE ERROR] - ',err.message);
+        return;
+      }
+    });
+    connectInfo.query(sql_option,(err,result,fields)=>{
+      if(err){
+        console.log('[INSERT ERROR] - ',err.message);
+        return;
+      }
+      console.log("存储对话选项成功！");
+    });
+    DialogueOptionsHTML='';
+  });
+  res.json({"status":"success"});
+});
+//发送对话选项********************************
+app.post('/sendDialogueOptions',(req,res)=>{
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    body=Buffer.concat(body).toString();
+    body=JSON.stringify(body);
+    sql_load_option="SELECT * FROM `user` "+`where orgid=${body}`;
+    connectInfo.query(sql_load_option,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        return;
+      }
+      if(result.length==0){
+        DialogueOptionsHTML=`<li class="select-option" data-value="-1">New chat</li>`;
+        res.json({
+          "HTML":DialogueOptionsHTML
+        });
+      }else{
+        res.json({
+          "HTML":result[0].DialogueOption
+        });
+      }
+    });
+  });
+});
+//获取isSummary_isClickNewChat********************************
+app.post('/getNewSummary',(req,res)=>{
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    body=Buffer.concat(body).toString();
+    New_Summary=JSON.parse(body);
+    console.log("New_summary is :",New_Summary);
+  });
+  res.json({"status":"success"});
+});
+//发送isSummary_isClickNewchat********************************
+app.post('/sendNewSummary',(req,res)=>{
+  console.log("New_summary to send is :",New_Summary);
+  res.json({
+    "isClickNewChat":New_Summary.isClickNewChat,
+    "isSummary":New_Summary.isSummary
+  });
+});
+
+//发送刷新前的dialogueID********************************
+app.post('/sendCurrentDialogueID',(req,res)=>{
+  console.log("刷新前对话ID为 ",CurrentDialogueID);
+  res.json({
+    "CurrentDialogueID":parseInt(CurrentDialogueID)
+  });
+});
+//删除session********************************
+app.get('/delete-session',(req,res)=>{
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.json({
+      status:'success'
+    });
+  });
+});
 //加载静态资源********************************
 app.use('/GPT_Web',express.static('GPT_Web'))
 app.get('/', (req,res)=>{
@@ -163,256 +441,4 @@ app.get('/images/GPT.ico' , (req , res)=>{
     res.end(data);
   });
 })
-//处理登录请求********************************
-app.post('/process-login',(req,res)=>{
-    req.on("data", (chunk) => {
-      body.push(chunk);
-    });
-    req.on("end",()=>{
-      req.session.sign = true;
-      req.session.name = 'Client';
-      body = Buffer.concat(body).toString();
-      body = querystring.parse(body);
-      User.set(body.orgid,body.APIkey);
-      req.session.orgid=body.orgid;
-      orgid=body.orgid;
-      body=[];
-      res.redirect(`${location}/Main.html`);
-    })
-});
-//请求获取APIkey********************************
-app.get('/get-info',(req,res)=>{
-  if (req.session.sign){
-    res.json({"orgid":req.session.orgid,"APIkey":User.get(req.session.orgid)});
-  }else{
-    res.json({"orgid":orgid,"APIkey":User.get(orgid)});
-  }
-})
-//获取此时的对话ID********************************
-app.post('/getDialogueID' , (req , res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  })
-  req.on('end',()=>{
-    body = Buffer.concat(body).toString();
-    body=parseInt(body);
-    dialogue_id=body;
-    console.log("dialogue_id: ",dialogue_id);
-    body=[];
-    res.json({
-      status:'success'
-    });
-  })
-})
-//获取replyID********************************
-app.post('/getreplyID',(req,res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  })
-  req.on('end',()=>{
-    body = Buffer.concat(body).toString();
-    body=parseInt(body);
-    replyID=body;
-    console.log("replyID: ",replyID);
-    body=[];
-    res.json({
-      status:'success'
-    });
-  })
-});
-//获取spinner_cnt********************************
-app.post('/getspinner_cnt',(req,res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  })
-  req.on('end',()=>{
-    body = Buffer.concat(body).toString();
-    body=parseInt(body);
-    spinner_cnt=body;
-    console.log("spinner_cnt: ",spinner_cnt);
-    body=[];
-    res.json({
-      status:'success'
-    });
-  })
-});
-//获取dialogueHTML********************************
-app.post('/getDialogueHTML',(req,res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    dialogueHTML=Buffer.concat(body).toString();
-    body=[];    
-    res.json({
-      status:'success'
-    });
-  });
-});
-//获取orgid
-app.post('/getorgid',(req,res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    orgid=Buffer.concat(body).toString();
-    body=[];   
-    res.json({
-      status:'success'
-    }); 
-  });
-});
-//发送对话ID********************************
-app.post('/sendDialogueID',(req,res)=>{
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    orgid=Buffer.concat(body).toString();
-    body=[];    
-    sql_id="SELECT id FROM `dialogue` "+`WHERE orgid=${JSON.stringify(orgid)}`+" ORDER BY id DESC LIMIT 1";
-    connectInfo.query(sql_id,(err,result,fields)=>{
-      if(err){
-        console.log('[SELECT ERROR] - ',err.message);
-        res.status(500).json({"id":-2,"status":"fail"});
-        return;
-      }
-      if(result.length>0){
-        dialogue_id=result[0].id;
-        console.log("数据库id最大值为: ",dialogue_id);
-        res.json({ id: dialogue_id});
-      } else {
-        console.log("数据库id最大值为: ",-1);
-        res.json({ id: -1 }); 
-      }
-    }); 
-  });
-});
-//存储历史对话********************************
-app.post('/saveDialogue',(req,res)=>{
-  console.log("存储对话中...");
-  req.on('data',(chunk)=>{
-    dialogue.push(chunk);
-  });
-  req.on('end',()=>{
-    dialogue=Buffer.concat(dialogue).toString();
-    console.log(JSON.parse(dialogue));
-    dialogue=JSON.stringify(dialogue);
-    CurrentDialogueID=dialogue_id;
-    sql_delete="DELETE FROM `dialogue` "+`where id=${dialogue_id} and orgid=${JSON.stringify(orgid)}`;
-    sql_insert="INSERT INTO `dialogue` VALUES "+`(
-      ${dialogue_id},
-      ${JSON.stringify(orgid)},
-      ${dialogue},
-      ${dialogueHTML},
-      ${replyID},
-      ${spinner_cnt}
-    )`;
-    connectInfo.query(sql_delete,(err,result,fields)=>{
-      if(err){
-        console.log('[DELETE ERROR] - ',err.message);
-        return;
-      }
-    });
-    connectInfo.query(sql_insert,(err,result,fields)=>{
-      if(err){
-        console.log('[INSERT ERROR] - ',err.message);
-        return;
-      }
-      console.log("存储对话成功！");
-    });
-    dialogue=[];
-    res.json({
-      status:'success'
-    });
-  });
-});
-//加载历史对话********************************
-app.post('/loadDialogue',(req,res)=>{
-  console.log("加载对话中...");
-  var data;
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    body = Buffer.concat(body).toString();
-    body = parseInt(body);
-    console.log("selectedIndex: ",body);
-    sql_load="SELECT * FROM `dialogue` where id"+`=${body} and orgid="${orgid}"`;
-    connectInfo.query(sql_load,(err,result,fields)=>{
-      if(err){
-        console.log('[SELECT ERROR] - ',err.message);
-        return;
-      }
-      data={};
-      if(result.length!=0){
-        CurrentDialogueID=result[0].id;
-        data={
-          "replyID":result[0].replyID,
-          "spinner_cnt":result[0].spinner_cnt,
-          "dialogueHTML":result[0].html,
-          "dialogue":result[0].conversation,
-        }
-      }
-      res.json(data);
-    });
-    body=[];
-  })
-});
-//接收对话选项********************************
-app.post('/getDialogueOptions',(req,res)=>{
-  var body=[];
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    DialogueOptionsHTML=Buffer.concat(body).toString();
-  });
-  res.json({"status":"success"});
-});
-//发送对话选项********************************
-app.post('/sendDialogueOptions',(req,res)=>{
-  res.json({
-    "HTML":DialogueOptionsHTML
-  })
-});
-//获取isSummary_isClickNewchat********************************
-app.post('/getNewSummary',(req,res)=>{
-  var body=[];
-  req.on('data',(chunk)=>{
-    body.push(chunk);
-  });
-  req.on('end',()=>{
-    body=Buffer.concat(body).toString();
-    New_Summary=JSON.parse(body);
-    console.log("New_summary is :",New_Summary);
-  });
-  res.json({"status":"success"});
-});
-//发送isSummary_isClickNewchat********************************
-app.post('/sendNewSummary',(req,res)=>{
-  console.log("New_summary to send is :",New_Summary);
-  res.json({
-    "isClickNewChat":New_Summary.isClickNewchat
-  });
-});
-
-//发送刷新前的dialogueID********************************
-app.post('/sendCurrentDialogueID',(req,res)=>{
-  console.log("刷新前对话ID为 ",CurrentDialogueID);
-  res.json({
-    "CurrentDialogueID":parseInt(CurrentDialogueID)
-  });
-});
-//删除session********************************
-app.get('/delete-session',(req,res)=>{
-  req.session.destroy(err => {
-    if (err) {
-      console.error('Error destroying session:', err);
-    }
-    res.json({
-      status:'success'
-    });
-  });
-});
 var server=app.listen(port,()=>{});
