@@ -216,7 +216,7 @@ app.post('/saveDialogue',(req,res)=>{
 //加载历史对话********************************
 app.post('/loadDialogue',(req,res)=>{
   console.log("加载对话中...");
-  var data;
+  var data={};
   req.on('data',(chunk)=>{
     body.push(chunk);
   });
@@ -230,13 +230,14 @@ app.post('/loadDialogue',(req,res)=>{
         console.log('[SELECT ERROR] - ',err.message);
         return;
       }
-      data={};
       if(result.length!=0){
         CurrentDialogueID=result[0].id;
         data={
           "replyID":result[0].replyID,
           "dialogueHTML":result[0].html,
           "dialogue":result[0].conversation,
+          "isClickNewChat":result[0].isClickNewChat,
+          "isSummary":result[0].isSummary
         }
       }
       res.json(data);
@@ -317,10 +318,29 @@ app.post('/getNewSummary',(req,res)=>{
 });
 //发送isSummary_isClickNewchat********************************
 app.post('/sendNewSummary',(req,res)=>{
-  console.log("New_summary to send is :",New_Summary);
-  res.json({
-    "isClickNewChat":New_Summary.isClickNewChat,
-    "isSummary":New_Summary.isSummary
+  var body=[];
+  req.on('data',(chunk)=>{
+    body.push(chunk);
+  });
+  req.on('end',()=>{
+    body=parseInt(Buffer.concat(body).toString());
+    console.log("body is : ",body);
+    sql_load="SELECT * FROM `dialogue` where id"+`=${body} and orgid="${orgid}"`;
+    connectInfo.query(sql_load,(err,result,fields)=>{
+      if(err){
+        console.log('[SELECT ERROR] - ',err.message);
+        return;
+      }
+      if(result.length!=0){
+        New_Summary.isClickNewChat=result[0].isClickNewChat;
+        New_Summary.isSummary=result[0].isSummary;
+        console.log("New_summary to send is :",New_Summary);
+      }
+    });
+    res.json({
+      "isClickNewChat":New_Summary.isClickNewChat,
+      "isSummary":New_Summary.isSummary
+    });
   });
 });
 

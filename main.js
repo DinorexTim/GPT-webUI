@@ -745,7 +745,17 @@ async function saveDialogue(){
                     const data=await response.json();
                     var title=data.choices[0].message.content;
                     const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
-                    selectedOption.textContent=title;
+                    var index=0;
+                    var temp='';
+                    function showText() {
+                        if (index < title.length) {
+                            temp+=title.charAt(index);
+                            selectedOption.textContent=`${temp}`;
+                            index++;
+                            setTimeout(showText, 20);
+                        }
+                    }
+                    showText();
                     lielement.innerText=title;
                     historical_dialogue.pop();
                     await sendDialogueOptions();
@@ -857,7 +867,7 @@ async function loadDialogue(selectedIndex,orgid){
         console.error('Request error:', error);
     });
     try {
-        const response = await fetch('loadDialogue',{
+        const response = await fetch('/loadDialogue',{
             method:'POST',
             body:selectedIndex,
         });
@@ -871,7 +881,8 @@ async function loadDialogue(selectedIndex,orgid){
             interaction.scrollTop=interaction.scrollHeight;
         }
         historical_dialogue=JSON.parse(data.dialogue);
-        isSummary=0;
+        isclicknewchat=data.isClickNewChat;
+        isSummary=data.isSummary;
         document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
     } catch (error) {
         console.log(error);
@@ -1003,7 +1014,8 @@ async function sendNew_Summary(){
 async function getNew_Summary(){
     try{
         const response=await fetch('/sendNewSummary',{
-            method:'POST'
+            method:'POST',
+            body:dialogue_id
         });
         const data = await response.json();
         isclicknewchat=data.isClickNewChat;
@@ -1032,8 +1044,8 @@ async function getCurrentDialogueID(){
 window.onload=async ()=>{
     interaction.innerHTML='';
     await getorgID();
-    await getNew_Summary();
     await getCurrentDialogueID();
+    await getNew_Summary();
     await getDialogueOptions();
     loadDialogue(dialogue_id,orgid);
 }
