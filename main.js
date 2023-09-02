@@ -601,7 +601,7 @@ function sendrequest(){
                             }
                             interaction.scrollTop=interaction.scrollHeight;
                             index++;
-                            setTimeout(showText, 20);
+                            setTimeout(showText, 10);
                         }else{
                             //存储对话
                             saveDialogue();
@@ -727,7 +727,7 @@ async function saveDialogue(){
         if(interaction.innerText.length>300&&(!isSummary)){
             isSummary=1;
             await sendNew_Summary();
-            historical_dialogue.push({"role":"user","content":"请用一句话总结刚才的对话，字数不超过八个字，回复中不要带标点句号"});
+            historical_dialogue.push({"role":"user","content":"请用不超过八个字总结刚才的对话"});
             async function summaryDialogue(){
                 try{
                     const response = await fetch("https://api.openai.com/v1/chat/completions",{
@@ -744,6 +744,7 @@ async function saveDialogue(){
                     })
                     const data=await response.json();
                     var title=data.choices[0].message.content;
+                    title=title.replace("。","").replace(".","");
                     const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
                     var index=0;
                     var temp='';
