@@ -4,8 +4,9 @@
     <meta charset="UTF-8">
     <meta lang="en">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatPUA👍🏻</title>
-    <script src="https://cdn.bootcss.com/marked/0.8.1/marked.min.js"></script>
+    <script src="/marked.js"></script>
     <link rel="icon" href="/images/GPT.ico" type="image/x-icon">
     <link rel="stylesheet" href="/css/Main.css">
 </head>
@@ -27,7 +28,6 @@
         </div>
         <div>
           <textarea name="query" id="query" cols="30" rows="1" placeholder="let's chat!"></textarea>
-          <!-- <input type="text" placeholder="let's chat!" name="text" id="query"> -->
         </div>
         <div class="publicbar">
           <img src="./images/audiototext.png" alt="" id="audiototext" class="audiototext">
@@ -50,11 +50,11 @@
         <label for="model3"><b>GPT-3.5-turbo-0613</b></label>
       </form>
     </div>
-    <div class="context-linkage" style="display: inline-block;margin: auto;">
+    <!-- <div class="context-linkage" style="display: inline-block;margin: auto;">
       <h2 style="margin-top: 0px;">Context Linkage</h2>
         <input type="checkbox" id="Context-linkage" name="Context-linkage" value="option2" checked>
         <label for="Context-linkage"><b>True</b></label><br>
-    </div>
+    </div> -->
     <div class="temperature" style="display: inline-block;margin:auto" id="temperature">
         <div id="value"><h2 style="height: 45px;">Temperature:0.5</h2></div>
         <input type="range" min="0" max="9" id="temperature-range">

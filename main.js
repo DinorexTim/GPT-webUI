@@ -4,7 +4,7 @@ const interaction=document.getElementById("interaction");
 const MODEL1=document.getElementById("model1");
 const MODEL2=document.getElementById("model2");
 const MODEL3=document.getElementById("model3");
-const Contextlinkage=document.getElementById("Context-linkage")
+// const Contextlinkage=document.getElementById("Context-linkage")
 const Temperature=document.getElementById("temperature");
 const setprompt=document.getElementById("prompt");
 const audiototext=document.getElementById("audiototext");
@@ -67,10 +67,10 @@ NUMofIMAGES.addEventListener("input",()=>{
 });
 
 //选择是否联系上下文***********************************
-Contextlinkage.addEventListener('input',()=>{
-    isContextLinkage=1-isContextLinkage;
-    console.log("Context Linkage:"+isContextLinkage);
-})
+// Contextlinkage.addEventListener('input',()=>{
+//     isContextLinkage=1-isContextLinkage;
+//     console.log("Context Linkage:"+isContextLinkage);
+// })
 
 //选择逆天程度***********************************
 Temperature.addEventListener('input',()=>{
@@ -663,18 +663,25 @@ function sendrequest(){
     sendRequest();
 }
 
-//使用回车发送内容生成回复***********************************
-function sendrequestKey(){
-    if(event.code=='Enter'){
+//cmd/ctrl+回车发送内容***********************************
+document.addEventListener("keydown", function(event) {
+    const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
+    if (isMac && event.metaKey && event.key === 'Meta') {
+        isFirstKeyPressed = true;
+    } else if (!isMac && event.ctrlKey && event.key === 'Control') {
+        isFirstKeyPressed = true;
+    } else if (isFirstKeyPressed && event.key === 'Enter') {
+        event.preventDefault();
         sendrequest();
+        isFirstKeyPressed = false;
+    }  else {
+        isFirstKeyPressed = false;
     }
-}
+});
+
 
 //发送聊天请求***********************************
 btn.addEventListener("click",sendrequest);
-
-//回车发送内容***********************************
-document.addEventListener("keydown",sendrequestKey);
 
 //复制对话内容***********************************
 function copyContent(id){
@@ -892,13 +899,13 @@ async function loadDialogue(selectedIndex,orgid){
 }
 
 //显示历史对话***********************************
-selectedOption.addEventListener('mouseover', function() {
+selectedOption.addEventListener('click', function() {
     conversationOptions.classList.toggle('active');
     isclick=1;
 });
 
 //隐藏历史对话***********************************
-mainbox.addEventListener('click',()=>{
+interaction.addEventListener('click',()=>{
     conversationOptions.classList.remove('active');
 });
 

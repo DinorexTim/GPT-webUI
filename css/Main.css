@@ -43,7 +43,7 @@ body {
   background-color: #333;
   color: #fff;
   border: 0;
-  border-radius: 20px;
+  border-radius: 14px;
   cursor: pointer;
   padding: 10px;
   width: 80px;
@@ -56,6 +56,7 @@ body {
     background-color: #45a049;
 }
 .back{
+  display: flex;
   background-color: #333;
   color: #fff;
   border: 0;
@@ -67,6 +68,8 @@ body {
   margin: 5px;
   float: left;
   font-size: large;
+  justify-content: center;
+  align-items: center;
 }
 .back:hover{
   transition-duration: 0.3s;

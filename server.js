@@ -389,6 +389,18 @@ app.get('/main.js',(req,res)=>{
     res.end(data)
   });
 });
+app.get('/marked.js',(req,res)=>{
+  fs.readFile("./marked.js",(err,data)=>{
+    if(err){
+      console.log("加载marked.js失败！");
+      throw err;
+    }
+    res.writeHead(200,{
+      "Content-type":"text/javascript"
+    });
+    res.end(data)
+  });
+});
 app.get('/css/Main.css',(req,res)=>{
   fs.readFile("./css/Main.css",(err,data)=>{
     if(err){
