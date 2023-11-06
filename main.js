@@ -664,6 +664,7 @@ function sendrequest(){
 }
 
 //cmd/ctrl+回车发送内容***********************************
+let isFirstKeyPressed=false;
 document.addEventListener("keydown", function(event) {
     const isMac = /Mac|iPod|iPhone|iPad/.test(navigator.platform);
     if (isMac && event.metaKey && event.key === 'Meta') {
