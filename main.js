@@ -612,7 +612,7 @@ function sendrequest(){
                     replyID++;
                 }else{
                     var text=`❌请求失败，状态码：${xhr.status}`;
-                    document.getElementById(`spinner}`).innerHTML='';
+                    document.getElementById(`spinner`).innerHTML='';
                     document.getElementById(`spinner`).remove();
                     interaction.innerHTML=interaction.innerHTML+`
                         <div class="content" id=reply${replyID}>
@@ -883,16 +883,37 @@ async function loadDialogue(selectedIndex,orgid){
         const data = await response.json();
         console.log("待加载对话:");
         console.log(data);
-        //加载replyID
-        replyID=data.replyID;
-        if(data.dialogueHTML!='undefined'&&data.dialogueHTML!=undefined){
-            interaction.innerHTML=data.dialogueHTML;
-            interaction.scrollTop=interaction.scrollHeight;
+        if(data==undefined||data==null){
+            await getDialogueID();
+            historical_dialogue=[];    
+            historical_reply=[];
+            replyID=0;
+            isSummary=0;
+            interaction.innerHTML='';
+            document.getElementById("query").value='';
+            const newLiElement = document.createElement('li');//创建新的一行对话
+            newLiElement.classList.add('select-option');
+            newLiElement.setAttribute('data-value',`${dialogue_id}`);
+            newLiElement.textContent = `对话${dialogue_id}`;
+            selectedOption.textContent = newLiElement.textContent;
+            conversationOptions.appendChild(newLiElement);
+            conversationOptions.classList.remove('active');
+            await sendNew_Summary();
+            saveDialogue();
+            sendDialogueOptions();
         }
-        historical_dialogue=JSON.parse(data.dialogue);
-        isclicknewchat=data.isClickNewChat;
-        isSummary=data.isSummary;
-        document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
+        else{
+            //加载replyID
+            replyID=data.replyID;
+            if(data.dialogueHTML!='undefined'&&data.dialogueHTML!=undefined){
+                interaction.innerHTML=data.dialogueHTML;
+                interaction.scrollTop=interaction.scrollHeight;
+            }
+            historical_dialogue=JSON.parse(data.dialogue);
+            isclicknewchat=data.isClickNewChat;
+            isSummary=data.isSummary;
+            document.getElementById(`regeneratebtn${replyID-1}`).addEventListener('click',resendrequest);
+        }
     } catch (error) {
         console.log(error);
         return null;
@@ -995,8 +1016,13 @@ async function getDialogueOptions(){
         });
         const data = await response.json();
         conversationOptions.innerHTML=data.HTML;
-        const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
-        selectedOption.textContent=lielement.innerText;
+        if(data.HTML.length<=55){
+            const lielement=conversationOptions.querySelector(`li[data-value="${-1}"]`);    
+            selectedOption.textContent=lielement.innerText;
+        }else{
+            const lielement=conversationOptions.querySelector(`li[data-value="${dialogue_id}"]`);
+            selectedOption.textContent=lielement.innerText;
+        }
     }catch(error){
         console.log(error);
         return null;
