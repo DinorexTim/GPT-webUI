@@ -19,7 +19,7 @@ const conversationOptions = document.getElementById('conversationOptions');
 var query="";
 var model="gpt-3.5-turbo";
 var isContextLinkage=1;
-var temperature=5;
+var temperature=10;
 var historical_dialogue=[];
 var replyID=0;
 var max_dialogue_record=14;
@@ -34,15 +34,15 @@ var isSummary=0;
 
 //选择模型***********************************
 MODEL1.addEventListener('input',()=>{
-    model="gpt-4";
+    model="gpt-4-1106-preview";
     console.log("model: "+model);
 })
 MODEL2.addEventListener('input',()=>{
-    model="gpt-3.5-turbo";
+    model="gpt-4";
     console.log("model: "+model);
 })
 MODEL3.addEventListener('input',()=>{
-    model="gpt-3.5-turbo-0613";
+    model="gpt-3.5-turbo";
     console.log("model: "+model);
 })
 
@@ -75,7 +75,7 @@ NUMofIMAGES.addEventListener("input",()=>{
 //选择逆天程度***********************************
 Temperature.addEventListener('input',()=>{
     temperature=document.getElementById("temperature-range").value;
-    document.getElementById("value").innerHTML=`<h2 style="height: 50px;">Temperature:${temperature/10}</h2>`;
+    document.getElementById("value").innerHTML=`<h2 style="height: 50px;">Temperature:${(temperature/10).toFixed(1)}</h2>`;
 })
 
 //添加预设人格***********************************
@@ -278,7 +278,7 @@ texttoimage.addEventListener('click',()=>{
     }
     }
     async function apikey() {
-    APIkey = await getAPIkey();
+        APIkey = await getAPIkey();
     }
     async function sendRequest(){
         if(document.getElementById("query").value!=''){
