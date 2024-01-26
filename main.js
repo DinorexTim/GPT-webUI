@@ -17,7 +17,7 @@ const selectedOption = document.getElementById('selectedOption');
 const conversationOptions = document.getElementById('conversationOptions');
 
 var query="";
-var model="gpt-3.5-turbo";
+var model="gpt-4-1106-preview";
 var isContextLinkage=1;
 var temperature=10;
 var historical_dialogue=[];
@@ -66,7 +66,7 @@ NUMofIMAGES.addEventListener("input",()=>{
     document.getElementById("numofimages").innerHTML=`<h2 style="height: 45px;">Num of images:${numofimages}</h2></h2>`;
 });
 
-//选择是否联系上下文***********************************
+//选择是否联系上下文（默认选择）***********************************
 // Contextlinkage.addEventListener('input',()=>{
 //     isContextLinkage=1-isContextLinkage;
 //     console.log("Context Linkage:"+isContextLinkage);
@@ -957,7 +957,7 @@ conversationOptions.addEventListener('click', async function(event) {
             newLiElement.setAttribute('data-value',`${dialogue_id}`);
             newLiElement.textContent = `对话${dialogue_id}`;
             selectedOption.textContent = newLiElement.textContent;
-            conversationOptions.appendChild(newLiElement);
+            conversationOptions.insertBefore(newLiElement,conversationOptions.querySelector('.select-option[data-value="-1"]').nextSibling);
             conversationOptions.classList.remove('active');
             await sendNew_Summary();
             saveDialogue();
