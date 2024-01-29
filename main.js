@@ -4,7 +4,7 @@ const interaction=document.getElementById("interaction");
 const MODEL1=document.getElementById("model1");
 const MODEL2=document.getElementById("model2");
 const MODEL3=document.getElementById("model3");
-// const Contextlinkage=document.getElementById("Context-linkage")
+const Contextlinkage=document.getElementById("Context-linkage")
 const Temperature=document.getElementById("temperature");
 const setprompt=document.getElementById("prompt");
 const audiototext=document.getElementById("audiototext");
@@ -67,10 +67,10 @@ NUMofIMAGES.addEventListener("input",()=>{
 });
 
 //选择是否联系上下文（默认选择）***********************************
-// Contextlinkage.addEventListener('input',()=>{
-//     isContextLinkage=1-isContextLinkage;
-//     console.log("Context Linkage:"+isContextLinkage);
-// })
+Contextlinkage.addEventListener('input',()=>{
+    isContextLinkage=1-isContextLinkage;
+    console.log("contextualize:"+isContextLinkage);
+})
 
 //选择逆天程度***********************************
 Temperature.addEventListener('input',()=>{
@@ -411,9 +411,9 @@ function resendrequest(){
                 <div class="ReplyContent" id="ReplyContent${replyID}">
                 
                 </div>
-                <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
+                <button id="${replyID}" onclick="copyContent(this.id)"><i class="fa fa-copy"></i></button>
                 <div id="regenerate${replyID}">
-                <button id="regeneratebtn${replyID}">Regenerate</button>
+                <button id="regeneratebtn${replyID}"><i class="fa fa-refresh"></i></button>
                 </div>
             </div>
             `;
@@ -426,7 +426,9 @@ function resendrequest(){
                     if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
                         textElement.innerHTML=`${temp}`;
                     }
-                    interaction.scrollTop=interaction.scrollHeight;
+                    if((interaction.scrollTop+35>interaction.scrollHeight-interaction.clientHeight)){
+                        interaction.scrollTop=interaction.scrollHeight;
+                    }
                     index++;
                     setTimeout(showText, 20);
                 }else{
@@ -448,7 +450,7 @@ function resendrequest(){
                     <p id='texterror${replyID}'></p>
                     </div>
                     <div id="regenerate${replyID}">
-                    <button id="regeneratebtn${replyID}">Regenerate</button>
+                    <button id="regeneratebtn${replyID}"><i class="fa fa-refresh"></i></button>
                     </div>
                 </div>
             `;
@@ -457,7 +459,9 @@ function resendrequest(){
             function showText() {
                 if (index < text.length) {
                     textElement.innerHTML += text.charAt(index);
-                    interaction.scrollTop=interaction.scrollHeight;
+                    if((interaction.scrollTop+35>interaction.scrollHeight-interaction.clientHeight)){
+                        interaction.scrollTop=interaction.scrollHeight;
+                    }
                     index++;
                     setTimeout(showText, 20); 
                 }
@@ -584,9 +588,9 @@ function sendrequest(){
                     <div class="ReplyContent" id="ReplyContent${replyID}">
                     
                     </div>
-                    <button id="${replyID}" onclick="copyContent(this.id)">Copy</button>
+                    <button id="${replyID}" onclick="copyContent(this.id)"><i class="fa fa-copy"></i></button>
                     <div id="regenerate${replyID}">
-                        <button id="regeneratebtn${replyID}">Regenerate</button>
+                        <button id="regeneratebtn${replyID}"><i class="fa fa-refresh"></i></button>
                     </div>
                     </div>
                     `;
@@ -599,7 +603,9 @@ function sendrequest(){
                             if(htmltext.charAt(index)!='<'&&htmltext.charAt!='>'&&htmltext.charAt(index)!='/'){
                                 textElement.innerHTML=`${temp}`;
                             }
-                            interaction.scrollTop=interaction.scrollHeight;
+                            if((interaction.scrollTop+35>interaction.scrollHeight-interaction.clientHeight)){
+                                interaction.scrollTop=interaction.scrollHeight;
+                            }
                             index++;
                             setTimeout(showText, 10);
                         }else{
@@ -621,7 +627,7 @@ function sendrequest(){
                         <p id='texterror${replyID}'></p>
                         </div>
                         <div id="regenerate${replyID}">
-                            <button id="regeneratebtn${replyID}">Regenerate</button>
+                            <button id="regeneratebtn${replyID}"><i class="fa fa-refresh"></i></button>
                         </div>
                         </div>
                     `;
