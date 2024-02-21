@@ -1,0 +1,38 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>settings</title>
+    <link rel="stylesheet" href="/css/settings.css">
+    <link rel="icon" href="/images/icon.ico" type="image/png">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+</head>
+<body>
+
+    <header>
+    <h1 align="center">Settings <i class="fa fa-sliders"></i></h1>
+</header>
+
+<div class="container">
+    <div class="settings-container">
+        <h3 id="temperature">temperature 1.0</h3>
+        <p>采样温度：较高的值将使输出更加随机，而较低的值将使其更加集中和确定性</p>
+        <input type="range" id="temperature_val" name="" min="0" max="20" value="10">
+        <h3 id="frequency_penalty">frequency penalty 0.0</h3>
+        <p>频率惩罚：正值根据迄今为止文本中的现有频率对新标记进行惩罚，从而降低模型逐字重复同一行的可能性</p>
+        <input type="range" id="frequency_penalty_val" name="" min="-20" max="20" value="0">
+        <h3 id="presence_penalty">presence penalty 0.0</h3>
+        <p>存在惩罚：正值根据新标记目前是否出现在文本中来对其进行惩罚，从而增加模型讨论新主题的可能性</p>
+        <input type="range" id="presence_penalty_val" name="" min="-20" max="20" value="0">
+        <h3 id="max_tokens">max tokens <p contenteditable="true" id="edit_max_tokens">1024</p> <i class="fa fa-pencil"></i></h3>
+        <p>最大令牌数：对话可生成的最大令牌数量</p>
+        <input type="range" id="max_tokens_val" name="" min="512" max="1296" value="1024">
+        <div class="func-bar">
+            <button id="savesettings">Save settings</button>
+            <button id="back">back <i class="fa fa-sign-out"></i></button>
+        </div>
+    </div>
+</div>
+<script src="/js/settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+.chatbox{
+    width: 100%;
+    height: 99vh; 
+    display: flex;
+    flex-direction: column;
+    color: white;
+    transition: opacity 0.5s ease-in-out;
+    margin: 0px;
+}
+
+.topbar{
+    display: flex;
+    position: absolute;
+    top: 0;
+    background-color: #333333;
+    width: 99%;
+    height: 50px;
+    justify-content: space-around;
+    z-index: 8888;
+    left: 1px;
+}
+
+.topbar button{
+    color: white;
+    font-size: 15px;
+    font-weight: bolder;
+    background-color: #333333;
+    cursor: pointer;
+    width: 180px;
+    border: 2px solid #333333;
+    border-radius: 30px;
+    transition: background-color 0.15s ease;
+}
+
+.topbar button:hover{
+    background-color: #22c55e;
+}
+
+.dropdown-content {
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    position: absolute;
+    background-color: #434343;
+    min-width: 120px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+    border-radius: 25px;
+    transition: opacity 0.15s ease;
+    margin-top: 50px;
+    align-items: center;
+}
+
+.dropdown-content a {
+    color: white;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+    border-radius: 25px;
+    transition: background-color 0.2s ease;
+    font-weight: bolder;
+}
+
+.dropdown-content a:hover {
+    background-color: #22c55e;
+}
+
+.interaction{
+    width: 99%;
+    flex: 1;
+    background-color: #000000;
+    overflow-y: scroll;
+    display: inline-block;
+    border: 1.5px rgb(211, 211, 211) solid;
+    padding-top: 45px;
+}
+
+
+.interaction h3{
+   margin-left: 20px;
+}
+
+.replycontent{
+    margin-left: 18px;
+    padding: 10px;
+    width: 40%;
+    border-radius: 10px;
+    border: #ffffff solid 1.5px;
+    background-color: #333;
+}
+
+.query{
+    color: white;
+    height:70%;
+    background-color: #000000;
+    padding: 10px;
+    border-radius: 5px;
+    display: inline-block;
+    font-size: large;
+    flex-grow: 1;
+}
+
+body{
+    background-color: #000000; 
+    color: white;
+    font-family: Arial, sans-serif;
+    margin: 0px;
+}
+
+pre{
+    overflow-x: scroll;
+    padding: 10px;
+    background-color: #383737;
+    margin-left: 25px;
+    margin-right: 41px;
+    margin-top: -3px;
+}
+
+.mailbox{
+    margin-top: 10px;
+    display: flex;
+    justify-content:space-between;
+    height: 60px;
+    align-items: center;
+}
+
+.mailbox button{
+    border-radius: 20px;
+    border: solid 1.5px white;
+    width: 60px;
+    transition: background-color 0.3s ease;
+}
+
+button {
+    height: 100%;
+}   
+
+.spinner {
+    /* Size */
+    height: 2rem;
+    width: 2rem;
+
+    margin: auto;
+    margin-top: 20px;
+    border: 4px solid #d1d5db;
+    border-top-color: #3b82f6;
+    border-radius: 50%;
+
+
+    animation: spinner 800ms linear infinite;
+}
+
+@keyframes spinner {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.likefun{
+    cursor: pointer;
+    display: inline-block;
+}
+
+.likefun:hover{
+    background-color: #686868; 
+    border-radius: 5px;
+}
+
+.presence-indicator {
+    position: relative;
+}
+
+.presence-indicator__indicator {
+    display: none;
+    /* Shown at the bottom right corner */
+    bottom: 0;
+    position: absolute;
+    right: 0;
+    transform: translate(50%, 50%);
+
+    /* Rounded border */
+    border-radius: 9999px;
+    height: 0.7rem;
+    width: 0.7rem;
+
+    /* Background color */
+    background-color: #22c55e;
+}
+.time{
+    font-size: small;
+    text-align: center;
+    margin-top: 10px;
+}
+.header {
+    padding-top: 15px;
+    text-align: center;
+}
+
+.btn-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.btn ,.savebtn, .deletebtn{
+    display: inline-block;
+    margin: 5px;
+    background-color: #000000;
+    color: white;
+    border-radius: 3px;
+    font-weight: bolder;
+    cursor: pointer;
+    font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    padding: 10px;
+    border:1.5px solid #858181;
+    transition: background-color 0.3s ease;
+    transition: transform 0.3s ease-in-out;
+    width: 130px;
+}
+
+.btn:hover,.savebtn:hover,.deletebtn:hover {
+    background-color: #22c55e; 
+    transform: scale(1.02)
+}
+
+#sidebar{
+    display: flex;
+    flex-direction: column;
+    left: -150px;
+    margin-top: 0px;
+    padding-top: 50px;
+    position: fixed;
+    width: 150px;
+    height: 100%;
+    background-color: #000000;
+    color: #fff;
+    box-sizing: border-box;
+    transition: left 0.3s ease;
+    z-index: 6666;
+    border-radius: 10px;
+    border: 1.5px solid #313131;
+}
+
+.toggle-btn {
+    position: fixed;
+    height: 37px;
+    width: 37px;
+    padding: 10px;
+    cursor: pointer;
+    color: white;
+    background-color: transparent;
+    border: solid 2px rgb(192, 191, 191);
+    z-index: 9999;
+    top: 7px;
+    left: 6px;
+}
+.toggle-btn:hover{
+    background-color: #68696a;
+    transform: scale(1.03)
+}
+
+.history-chat{
+    flex-direction: column; 
+    overflow-y: scroll;
+    flex: 1;
+}
+
+.history-chat button{
+    height: 60px;
+    transition: background-color 0.3s ease;
+}
+
+.function-bar{
+    height: 120px;
+    margin-bottom: 100px;
+}
+
+.function-bar button{
+    height: 60px;
+    transition: background-color 0.3s ease;
+}
+
+.function-bar button:hover{
+    background-color: #22c55e;
+}
+
+.dlg{
+    margin-bottom: 10px;
+    margin-left: 5px;
+}
+
+.text{
+    border: 1.5px solid rgb(164, 163, 163);
+    border-radius: 5px;
+    padding: 6px;
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-bottom: 10px;
+}
+
+h2{
+    margin-left: 30px;
+}
+
+::-webkit-scrollbar {
+    width: 2px; /* 滚动条宽度 */
+    height: 2px;
+  }
+  
+::-webkit-scrollbar-track {
+    background: #2b2b2b; /* 滚动条轨道背景色 */
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #888; /* 滚动条手柄颜色 */
+    border-radius: 3px; /* 滚动条手柄边角弧度 */
+}
+  
+::-webkit-scrollbar-thumb:hover {
+    background-color: #555; /* 滚动条手柄悬停时颜色 */
+}
+
+textarea{
+    border: 1.5px solid rgb(211, 211, 211);
+    transition: background-color 0.3s ease;
+}
+textarea:hover{
+    background-color: #212121; 
+}
+
+.down{
+    position: absolute;
+    display: none;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    left:50%;
+    bottom: 130px;
+    z-index: 9999;
+    cursor: pointer;
+    color: white;
+    background-color: transparent;
+    border: 1px solid white;
+    transition: ease background-color 0.3s;
+    transition: transform 0.3s ease-in-out;
+    -webkit-text-stroke: 0.5px #000000;
+}
+
+.down:hover{
+    background-color: #575656;
+    transform: scale(1.03);
+}
+
+.copy-code-btn {
+    background-color: #333333;
+    color: white;
+    padding: 5px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin-right: 5px;
+    cursor: pointer;
+    border-radius: 7px;
+    float: inline-end;
+    transition: background-color 0.3s ease;
+}
+
+.copy-code-btn:hover {
+    background-color: #22c55e; 
+    transform: scale(1.02)
+}
+
+a{
+    color: #5fcb46;
+}
+
+.prompts,.prompts-new,.new_prompts{
+    border: #818181 3px solid;
+    margin: 15px;
+    padding-bottom: 10px;
+    transition: background-color 0.3s ease;
+    border-radius: 10px;
+}
+
+.prompts:hover{
+    background-color: #333333;
+    cursor: pointer;
+}
+
+.prompt_name{
+    max-width: 400px;
+}
+
+.prompt_content{
+    color: white;
+    margin-left: 25px;
+    margin-right: 25px;
+    padding: 5px;
+    border: #818181 3px solid;
+}
+
+.prompts-new{
+    display: flex;
+    justify-content: center;
+    font-size: 30px;
+    padding: 10px;
+    transition: background-color 0.3s ease;
+    cursor: pointer;
+}
+
+.prompts-new:hover{
+    background-color: #22c55e;
+}
+
+.buttonbar{
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 5px;
+}
+
+.buttonbar button{
+    width: 40px;
+    height: 40px;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn {
+    display: none;
+    position: absolute;
+    background-color: #f00;
+    color: #fff;
+    padding: 5px 10px;
+    border: 3px white solid;
+    cursor: pointer;
+    height: 40px;
+    border-radius: 4px;
+    z-index: 8999;
+    transition: background-color 0.3s ease;
+}
+
+.delete-btn:hover{
+    background-color: rgb(214, 24, 24);
+}
