@@ -19,7 +19,7 @@
 
 1. 安装Node.js
 
-[https://nodejs.org/en/download/](https://nodejs.org/en/download/)
+- [https://nodejs.org/en/download/](https://nodejs.org/en/download/)
 
 2. 下载源代码
 
