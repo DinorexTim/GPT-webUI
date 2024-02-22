@@ -404,6 +404,7 @@ async function load_sidebar(){
             });
             document.getElementById(`${data.rows[index].chatid}`).addEventListener('click',()=>{
                 localStorage.setItem("chatid",data.rows[index].chatid);
+                window.location.reload();
                 fetch('/loadDialogue',{
                     method:'POST',
                     body:JSON.stringify({"chatid":data.rows[index].chatid})
