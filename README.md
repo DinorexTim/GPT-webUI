@@ -9,7 +9,9 @@
 
 ### 对话界面
 
-![](./images/chat.png)
+![](./images/chat1.png)
+
+![](./images/chat2.png)
 
 ### 自定义人格
 
