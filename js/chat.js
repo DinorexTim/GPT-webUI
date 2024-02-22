@@ -102,42 +102,7 @@ function editsend(dlgelement){
         document.querySelectorAll('pre').forEach(function(preElement) {
             createCopyButton(preElement);
         });
-        document.querySelectorAll('.dlg').forEach(div=>{
-            if(div.querySelector("h2").innerText=="You"){
-                div.querySelectorAll("editbtn").forEach(element=>{
-                    element.remove()
-                });
-                div.querySelectorAll("sendbtn").forEach(element=>{
-                    element.remove()
-                });
-            }
-        });
-        document.querySelectorAll('.dlg').forEach(div=>{
-            if(div.querySelector("h2").innerText=="You"){
-                const subdiv=document.createElement('div');
-                const button1 = document.createElement('button');
-                const button2 = document.createElement('button');
-                button1.innerHTML = '<i class="fa fa-edit"></i>';
-                button2.innerHTML = '<i class="fa fa-send"></i>'
-                subdiv.classList.add('subdiv');
-                button1.classList.add("editbtn");
-                button2.classList.add("sendbtn");
-                button1.addEventListener('click', () => {
-                    div.querySelectorAll('.text').forEach(ele=>{
-                        ele.style.border = '2.5px solid white';
-                        ele.addEventListener('input',()=>{
-                            ele.style.border = '1.5px solid rgb(164, 163, 163)';
-                        })
-                    })
-                });
-                button2.addEventListener('click',()=>{
-                    editsend(div);
-                });
-                subdiv.appendChild(button1);
-                subdiv.appendChild(button2);
-                div.insertAdjacentElement('afterend', subdiv);
-            }
-        });
+        addEditButton();
     })
     .catch((error) => {
         console.error("Error:", error);
@@ -146,10 +111,7 @@ function editsend(dlgelement){
 function addEditButton(){
     document.querySelectorAll('.dlg').forEach(div=>{
         if(div.querySelector("h2").innerText=="You"){
-            div.querySelectorAll("editbtn").forEach(element=>{
-                element.remove()
-            });
-            div.querySelectorAll("sendbtn").forEach(element=>{
+            div.querySelectorAll(".subdiv").forEach(element=>{
                 element.remove()
             });
         }
@@ -177,7 +139,7 @@ function addEditButton(){
             });
             subdiv.appendChild(button1);
             subdiv.appendChild(button2);
-            div.insertAdjacentElement('afterend', subdiv);
+            div.appendChild(subdiv);
         }
     });
 }
