@@ -345,6 +345,7 @@ textarea:hover{
     border: 1px solid white;
     transition: ease background-color 0.3s;
     transition: transform 0.3s ease-in-out;
+    padding: 0px;
     -webkit-text-stroke: 0.5px #000000;
 }
 
