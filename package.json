@@ -18,8 +18,6 @@
     "fs": "^0.0.1-security",
     "http": "^0.0.1-security",
     "js-yaml": "^4.1.0",
-    "path": "^0.12.7",
-    "querystring": "^0.2.1",
     "sqlite3": "^5.1.7"
   }
 }

@@ -39,7 +39,7 @@
 .dropdown-content {
     display: flex;
     flex-direction: column;
-    opacity: 0;
+    display: none;
     position: absolute;
     background-color: #434343;
     min-width: 120px;
@@ -128,7 +128,7 @@ pre{
     border-radius: 20px;
     border: solid 1.5px white;
     width: 60px;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
 }
 
 button {
@@ -204,7 +204,7 @@ button {
     margin-top: 20px;
 }
 
-.btn ,.savebtn, .deletebtn{
+.btn ,.savebtn, .deletebtn, .editbtn, .sendbtn{
     display: inline-block;
     margin: 5px;
     background-color: #000000;
@@ -215,12 +215,12 @@ button {
     font-family:'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
     padding: 10px;
     border:1.5px solid #858181;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.2s ease;
     transition: transform 0.3s ease-in-out;
-    width: 130px;
+    width: 130px; 
 }
 
-.btn:hover,.savebtn:hover,.deletebtn:hover {
+.btn:hover,.savebtn:hover,.deletebtn:hover, .editbtn:hover, .sendbtn:hover{
     background-color: #22c55e; 
     transform: scale(1.02)
 }
@@ -359,7 +359,6 @@ textarea:hover{
     padding: 5px 5px;
     text-align: center;
     text-decoration: none;
-    display: inline-block;
     font-size: 16px;
     margin-right: 5px;
     cursor: pointer;
@@ -443,4 +442,21 @@ a{
 
 .delete-btn:hover{
     background-color: rgb(214, 24, 24);
+}
+
+.editbtn,.sendbtn{
+    width: 35px;
+    height: 35px;
+    margin-left: 10px;    
+    padding: 3px;
+    transition: background-color 0.2s ease;
+}
+
+.subdiv{
+    display: flex;
+    justify-content: flex-end;
+    padding-right: 25px;
+    margin-bottom: -45px;
+    margin-top: -5px;
+    cursor: pointer;
 }

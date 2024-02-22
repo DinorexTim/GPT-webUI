@@ -14,7 +14,7 @@ const down=document.getElementById('down');
 const guide=`<h1 style="margin-top: 60px;text-align: center;position: absolute;left: 50%;transform: translate(-50%, -50%);">Your own AI assistant</h1>`
 
 var cansend=1;
-var messages=[{"role":"system",content:""}]
+var messages=[{"role":"system","content":""}]
 const length_chatid=10;
 query.addEventListener('input',()=>{
     localStorage.setItem("query",query.value)
@@ -33,7 +33,7 @@ send.addEventListener('click',()=>{
         localStorage.removeItem("query");
         query.value="";
         // cansend=1-cansend;
-        interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text">${convertNewlinesAndSpacesToHTML(text)}</div><div class="spinner"></div>`;
+        interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text" contenteditable="true">${convertNewlinesAndSpacesToHTML(text)}</div><div class="spinner"></div>`;
         interaction.scrollTop=interaction.scrollHeight;
         messages.push({"role": "user","content": text})
         fetch('/chat',{
@@ -54,12 +54,133 @@ send.addEventListener('click',()=>{
             document.querySelectorAll('pre').forEach(function(preElement) {
                 createCopyButton(preElement);
             });
+            addEditButton();
         })
         .catch((error) => {
             console.error("Error:", error);
         });
     }
 });
+function editsend(dlgelement){
+    let judgeDelete=0;
+    document.querySelectorAll(".dlg").forEach(element=>{
+        if(element!=dlgelement){
+            if(judgeDelete){
+                element.remove();
+            }
+        }else{
+            judgeDelete=1;
+        }
+    })
+    messages=[{"role":"system","content":""}];
+    document.querySelectorAll(".dlg").forEach(element=>{
+        let role=element.querySelector("h2").innerText;
+        if(role=="You"){
+            role="user";
+        }
+        messages.push({
+            "role":role,
+            "content":element.querySelector(".text").innerText
+        });
+    });
+    interaction.innerHTML+=`<div class="spinner"></div>`
+    fetch('/chat',{
+        method:'POST',
+        body:JSON.stringify({
+            "messages":messages
+        })
+    })
+    .then((response=>response.json()))
+    .then((data)=>{
+        messages.push({"role": "assistant","content": data.messages})
+        document.querySelector('.spinner').remove();
+        interaction.innerHTML+=`<div class="dlg"><h2>Assistant</h2><div class="text">${marked(data.messages)}</div>`;
+        interaction.scrollTop=interaction.scrollHeight;
+        document.querySelectorAll('.copy-code-btn').forEach(element=>{
+            element.remove();
+        })
+        document.querySelectorAll('pre').forEach(function(preElement) {
+            createCopyButton(preElement);
+        });
+        document.querySelectorAll('.dlg').forEach(div=>{
+            if(div.querySelector("h2").innerText=="You"){
+                div.querySelectorAll("editbtn").forEach(element=>{
+                    element.remove()
+                });
+                div.querySelectorAll("sendbtn").forEach(element=>{
+                    element.remove()
+                });
+            }
+        });
+        document.querySelectorAll('.dlg').forEach(div=>{
+            if(div.querySelector("h2").innerText=="You"){
+                const subdiv=document.createElement('div');
+                const button1 = document.createElement('button');
+                const button2 = document.createElement('button');
+                button1.innerHTML = '<i class="fa fa-edit"></i>';
+                button2.innerHTML = '<i class="fa fa-send"></i>'
+                subdiv.classList.add('subdiv');
+                button1.classList.add("editbtn");
+                button2.classList.add("sendbtn");
+                button1.addEventListener('click', () => {
+                    div.querySelectorAll('.text').forEach(ele=>{
+                        ele.style.border = '2.5px solid white';
+                        ele.addEventListener('input',()=>{
+                            ele.style.border = '1.5px solid rgb(164, 163, 163)';
+                        })
+                    })
+                });
+                button2.addEventListener('click',()=>{
+                    editsend(div);
+                });
+                subdiv.appendChild(button1);
+                subdiv.appendChild(button2);
+                div.insertAdjacentElement('afterend', subdiv);
+            }
+        });
+    })
+    .catch((error) => {
+        console.error("Error:", error);
+    });
+}
+function addEditButton(){
+    document.querySelectorAll('.dlg').forEach(div=>{
+        if(div.querySelector("h2").innerText=="You"){
+            div.querySelectorAll("editbtn").forEach(element=>{
+                element.remove()
+            });
+            div.querySelectorAll("sendbtn").forEach(element=>{
+                element.remove()
+            });
+        }
+    });
+    document.querySelectorAll('.dlg').forEach(div=>{
+        if(div.querySelector("h2").innerText=="You"){
+            const subdiv=document.createElement('div');
+            const button1 = document.createElement('button');
+            const button2 = document.createElement('button');
+            button1.innerHTML = '<i class="fa fa-edit"></i>';
+            button2.innerHTML = '<i class="fa fa-send"></i>'
+            subdiv.classList.add('subdiv');
+            button1.classList.add("editbtn");
+            button2.classList.add("sendbtn");
+            button1.addEventListener('click', () => {
+                div.querySelectorAll('.text').forEach(ele=>{
+                    ele.style.border = '2.5px solid white';
+                    ele.addEventListener('input',()=>{
+                        ele.style.border = '1.5px solid rgb(164, 163, 163)';
+                    })
+                })
+            });
+            button2.addEventListener('click',()=>{
+                editsend(div);
+            });
+            subdiv.appendChild(button1);
+            subdiv.appendChild(button2);
+            div.insertAdjacentElement('afterend', subdiv);
+        }
+    });
+}
 function addNewChat(){
     if(interaction.innerHTML!=guide){
         messages=[{"role":"system","content":""}];
@@ -88,6 +209,8 @@ function addNewChat(){
                     interaction.innerHTML="";
                     var a=document.createElement('button');
                     a.className="btn";
+                    a.textContent=generateRandomString(length_chatid);
+                    localStorage.setItem("chatid",a.textContent);
                     a.addEventListener('contextmenu',()=>{
                         event.preventDefault();
                         const deleteBtn = document.getElementById('deleteBtn');
@@ -96,20 +219,18 @@ function addNewChat(){
                         deleteBtn.style.top = event.clientY + 'px';
 
                         deleteBtn.onclick = function() {
-                            interaction.innerHTML=guide;
-                            document.getElementById(`${data.rows[index].chatid}`).remove();
                             fetch('/deleteChat',{
                                 method:'POST',
                                 body:JSON.stringify({
-                                    "chatid":data.rows[index].chatid
+                                    "chatid":a.textContent
                                 })
                             })
                             deleteBtn.style.display = 'none';
                             localStorage.setItem("chatid","");
+                            a.remove();
                             window.location.reload();
                         }
                     })
-                    a.textContent=generateRandomString(length_chatid);
                     document.getElementById('new-chat').parentNode.insertBefore(a,document.getElementById('new-chat').nextElementSibling);
                     fetch('/newChat',{
                         method:'POST',
@@ -127,22 +248,22 @@ function addNewChat(){
 }
 newchat.addEventListener('click',addNewChat);
 document.querySelector('.dropbtn').addEventListener('click',()=>{
-    if(document.getElementById('modelOptions').style.opacity=="1"){
-        document.getElementById('modelOptions').style.opacity="0";
+    if(document.getElementById('modelOptions').style.display=="block"){
+        document.getElementById('modelOptions').style.display="none";
     }else{
-        document.getElementById('modelOptions').style.opacity="1";
+        document.getElementById('modelOptions').style.display="block"
     }
 });
 document.addEventListener('click', function(event) {
     var dropdownContent = document.querySelector('.dropdown-content');
     var topbarContent=document.querySelector(".topbar");
     if (!(dropdownContent.contains(event.target)||topbarContent.contains(event.target))) {
-      dropdownContent.style.opacity = '0';
+        document.getElementById('modelOptions').style.display="none";
     }
 });
 function selectModel(model) {
     document.querySelector('.dropbtn').textContent = model;
-    document.getElementById('modelOptions').style.opacity = '0';
+    document.getElementById('modelOptions').style.display="none";
     fetch('/selectModel',{
         method:'POST',
         body:JSON.stringify({
@@ -151,6 +272,7 @@ function selectModel(model) {
     })
 }
 prompts.addEventListener('click',()=>{
+    cansend=0;
     toggle_sidebar.click();
     fetch('/getPrompts',{
         method:'POST'
@@ -158,6 +280,7 @@ prompts.addEventListener('click',()=>{
     .then((response=>response.json()))
     .then((data)=>{
         interaction.innerHTML='';
+        interaction.innerHTML+=`<div style="display:flex;justify-content:space-around"><h2>Prompts 🎭</h2></div>`;
         for(let index=0;index<data.content.length;index++){
             interaction.innerHTML+=`<div class="prompts">
             <h3 class="prompt_name" contenteditable="false">${data.content[index].title}</h3>
@@ -195,15 +318,17 @@ prompts.addEventListener('click',()=>{
                     alert("Created successfully!");
                 })
                 element.querySelector(".deletebtn").addEventListener('click',()=>{
-                    fetch('/deletePrompt',{
-                        method:'POST',
-                        body:JSON.stringify({
-                            "title":element.querySelector(".prompt_name").innerText
+                    if (confirm("Are you sure to delete?")){
+                        fetch('/deletePrompt',{
+                            method:'POST',
+                            body:JSON.stringify({
+                                "title":element.querySelector(".prompt_name").innerText
+                            })
                         })
-                    })
-                    element.remove();
-                    alert("Deleted successfully!");
+                        element.remove();
+                    }
                 })
+                addEditButton();
             })
         });
         document.querySelectorAll('.prompts').forEach(element=>{
@@ -226,7 +351,6 @@ prompts.addEventListener('click',()=>{
                         })
                     })
                     element.remove();
-                    alert("Delete successfully!");
                 }
             });
         });
@@ -276,6 +400,7 @@ function generateRandomString(length) {
     return randomString;
 }
 async function load_sidebar(){
+    cansend=1;
     try{
         const response=await fetch('/getSidebar',{
             method:'POST',
@@ -316,7 +441,6 @@ async function load_sidebar(){
             });
             document.getElementById(`${data.rows[index].chatid}`).addEventListener('click',()=>{
                 localStorage.setItem("chatid",data.rows[index].chatid);
-                window.location.reload();
                 fetch('/loadDialogue',{
                     method:'POST',
                     body:JSON.stringify({"chatid":data.rows[index].chatid})
@@ -328,7 +452,7 @@ async function load_sidebar(){
                     let msgs=JSON.parse(`${data.content}`);
                     messages=msgs;
                     for(let index=1;index<msgs.length;index+=2){
-                        interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text">${convertNewlinesAndSpacesToHTML(msgs[index].content)}</div>`;
+                        interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text" contenteditable="true">${convertNewlinesAndSpacesToHTML(msgs[index].content)}</div>`;
                         interaction.innerHTML+=`<div class="dlg"><h2>Assistant</h2><div class="text">${marked(msgs[index+1].content)}</div>`;
                     }
                     interaction.scrollTop=interaction.scrollHeight;
@@ -338,6 +462,7 @@ async function load_sidebar(){
                     document.querySelectorAll('pre').forEach(function(preElement) {
                         createCopyButton(preElement);
                     });
+                    addEditButton();
                 });
             });
         }
@@ -382,7 +507,7 @@ async function loadDialogue(chatid){
         let msgs=JSON.parse(`${data.content}`);
         messages=msgs;
         for(let index=1;index<msgs.length;index+=2){
-            interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text">${convertNewlinesAndSpacesToHTML(msgs[index].content)}</div>`;
+            interaction.innerHTML+=`<div class="dlg"><h2>You</h2><div class="text" contenteditable="true">${convertNewlinesAndSpacesToHTML(msgs[index].content)}</div>`;
             interaction.innerHTML+=`<div class="dlg"><h2>Assistant</h2><div class="text">${marked(msgs[index+1].content)}</div>`;
         }
         interaction.scrollTop=interaction.scrollHeight;
@@ -392,6 +517,7 @@ async function loadDialogue(chatid){
         document.querySelectorAll('pre').forEach(function(preElement) {
             createCopyButton(preElement);
         });
+        addEditButton();
     });
 }
 var isFirstKeyPressed=false;

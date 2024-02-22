@@ -1,15 +1,12 @@
 const express=require("express");
-const querystring=require("querystring")
 const http=require("http");
 const sqlite=require('sqlite3');
 const fs=require("fs");
 const yaml = require('js-yaml');
 const axios=require('axios');
-const path = require('path');
 const router = require('./router');
 
 const url_chat="https://api.openai.com/v1/chat/completions";
-const length_chatid=10
 var settings={
 
 };
