@@ -79,7 +79,7 @@ function editsend(dlgelement){
             role="user";
         }
         messages.push({
-            "role":role,
+            "role":role.toLowerCase(),
             "content":element.querySelector(".text").innerText
         });
     });
