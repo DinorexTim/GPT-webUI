@@ -145,6 +145,7 @@ function addEditButton(){
 }
 function addNewChat(){
     if(interaction.innerHTML!=guide){
+        cansend=1;
         messages=[{"role":"system","content":""}];
         toggle_sidebar.click();
         fetch('/getPrompts',{
