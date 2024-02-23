@@ -1,7 +1,9 @@
-# GPT_Web
-- 一个基于OpenAI api的本地网站
+# GPT-webUI
+
+- 一个基于OpenAI api的webUI
 - **需要自备API密钥**
 - 前往[https://platform.openai.com/account/api-keys](https://platform.openai.com/account/api-keys)获取你的API密钥
+
 ## 功能
 - [x] 自选模型
 - [x] 自定义对话参数
@@ -26,7 +28,7 @@
 2. 下载源代码
 
 ```
-git clone https://github.com/DINOREXNB/GPTweb.git
+git clone https://github.com/DINOREXNB/GPT-webUI.git
 ```
 
 3. 使用npm安装依赖
