@@ -11,13 +11,26 @@
 
 ### 对话界面
 
-![](./images/chat1.png)
+<details>
+    <summary>点击展开</summary>
 
-![](./images/chat2.png)
+<div align=center>
+  <img src="./images/chat1.png" style="width:45%;display:inline-block">
+  <img src="./images/chat2.png" style="width:45%;display:inline-block">
+</div>
+
+</details>
 
 ### 自定义人格
 
-![](./images/prompts.png)
+<details>
+    <summary>点击展开</summary>
+
+<div align=center>
+  <img src="./images/prompts.png" style="width:50%">
+</div>
+
+</details>
 
 ## 快速部署
 
