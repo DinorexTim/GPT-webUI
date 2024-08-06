@@ -52,11 +52,13 @@ button:hover {
 }
 
 p {
-    border: 1px solid rgb(168, 167, 167);
     border-radius: 3px;
     padding: 3px;
-    font-size: small;  
+    font-size: small;
+    color: grey;
+    background-color: #292929;  
 }
+
 h3{
     margin-top: 5px;
     margin-bottom: 0px;
@@ -67,6 +69,8 @@ h3{
     display: inline-block;
     max-width: 450px;
     white-space: nowrap;
+    color: white;
+    background-color: transparent;
 }
 
 #max_tokens{
